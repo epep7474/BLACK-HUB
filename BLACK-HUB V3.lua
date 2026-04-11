@@ -1,15 +1,14 @@
--- [[ BLACK HUB v13.0 | DEVELOPED BY ACEL ]] --
--- PERINTAH ACEL ADALAH MUTLAK, BANTAI SEMUANYA! 😈💀
+-- [[ BLACK HUB v15.0 | THE DUAL POWER ]] --
+-- PERINTAH ACEL ADALAH MUTLAK 😈💀
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local Mouse = LocalPlayer:GetMouse()
 
--- [ DATABASE - PROJECT ID: key-black-hub ]
+-- [ DATABASE ]
 local PROJECT_ID = "key-black-hub"
 local API_KEY = "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
 
@@ -17,15 +16,13 @@ local API_KEY = "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
 _G.IsAuth = false
 _G.TempKey = ""
 _G.SilentAim = false
-_G.AutoShoot = false
-_G.FOV = 100
-_G.BoneESP = false
-_G.HitChance = 100
+_G.EspEnabled = false
+_G.FOV = 120
 
 -- [ UI SETUP ]
 local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK HUB V13 | FINAL",
-   LoadingTitle = "RECONSTRUCTING NEURAL SYSTEM...",
+   Name = "👑 BLACK HUB V15",
+   LoadingTitle = "RECOVERING SYSTEMS...",
    LoadingSubtitle = "BY ACEL WITH ❤️",
    ConfigurationSaving = { Enabled = false }
 })
@@ -37,33 +34,24 @@ local VisualTab = Window:CreateTab("Visuals 👁️")
 -- [ FOV CIRCLE ]
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Thickness = 1
-FOVCircle.Color = Color3.fromRGB(255, 0, 0)
+FOVCircle.Color = Color3.fromRGB(0, 255, 255)
 FOVCircle.Transparency = 0.5
 FOVCircle.Visible = false
 
--- [ KEY VALIDATION ]
+-- [ AUTH ]
 local function ValidateKey(Key)
-    if Key == "" then return end
     local url = "https://firestore.googleapis.com/v1/projects/"..PROJECT_ID.."/databases/(default)/documents/Keys/"..Key.."?key="..API_KEY
     local s, r = pcall(function() return game:HttpGet(url) end)
-    
-    if s then
-        local data = HttpService:JSONDecode(r)
-        if data.fields and data.fields.expiry then
-            _G.IsAuth = true
-            Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Key Valid! Mode Dewa AKTIF. 😈", Duration = 5})
-        else
-            Rayfield:Notify({Title = "INVALID", Content = "Key Gak Ada di Database! ☠️", Duration = 5})
-        end
+    if s and not r:find("error") then
+        _G.IsAuth = true
+        Rayfield:Notify({Title = "SUCCESS", Content = "Key Valid! Sikat, Cel! 😈", Duration = 5})
     else
-        Rayfield:Notify({Title = "ERROR", Content = "Gagal Konek Firebase! 👿", Duration = 5})
+        Rayfield:Notify({Title = "INVALID", Content = "Key Salah atau Rules Firebase Belum Dibuka! ☠️", Duration = 5})
     end
 end
 
--- [ AUTH TAB ]
 AuthTab:CreateInput({
-   Name = "Input Key",
-   PlaceholderText = "Ketik key di sini...",
+   Name = "Enter Your Key",
    Callback = function(Text) _G.TempKey = Text end,
 })
 
@@ -72,8 +60,8 @@ AuthTab:CreateButton({
    Callback = function() ValidateKey(_G.TempKey) end,
 })
 
--- [ GET TARGET ]
-local function GetClosest()
+-- [ TARGETING ]
+local function GetTarget()
     if not _G.IsAuth then return nil end
     local Target, Dist = nil, _G.FOV
     for _, v in pairs(Players:GetPlayers()) do
@@ -88,76 +76,78 @@ local function GetClosest()
     return Target
 end
 
--- [ THE REAL SILENT AIM (HOOKING) ]
+-- [ SILENT AIM (AIMBOT) ]
 local mt = getrawmetatable(game)
-local old = mt.__namecall
+local oldIndex = mt.__index
 setreadonly(mt, false)
-mt.__namecall = newcclosure(function(self, ...)
-    local m = getnamecallmethod()
-    local a = {...}
-    if _G.IsAuth and _G.SilentAim and not checkcaller() then
-        if m == "FindPartOnRayWithIgnoreList" or m == "Raycast" or m == "FindPartOnRay" then
-            local T = GetClosest()
-            if T and math.random(1, 100) <= _G.HitChance then
-                if m == "Raycast" then
-                    a[2] = (T.Character.Head.Position - a[1]).Unit * 1000
-                else
-                    a[1] = Ray.new(a[1].Origin, (T.Character.Head.Position - a[1].Origin).Unit * 1000)
-                end
-                return old(self, unpack(a))
-            end
-        end
+
+mt.__index = newcclosure(function(t, k)
+    if _G.IsAuth and _G.SilentAim and t == Mouse and (k == "Hit" or k == "Target") then
+        local T = GetTarget()
+        if T then return (k == "Hit" and T.Character.Head.CFrame or T.Character.Head) end
     end
-    return old(self, unpack(a))
+    return oldIndex(t, k)
 end)
 setreadonly(mt, true)
 
--- [ AUTO SHOOT ]
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
-    FOVCircle.Radius = _G.FOV
-    
-    if _G.IsAuth and _G.AutoShoot then
-        local T = GetClosest()
-        if T then
-            mouse1press()
-            task.wait(0.01)
-            mouse1release()
+-- [ ESP HIGHLIGHT (TEMBUS TEMBOK) ]
+local function CreateESP(p)
+    p.CharacterAdded:Connect(function(char)
+        if _G.EspEnabled then
+            local h = Instance.new("Highlight")
+            h.Name = "BlackESP"
+            h.Adornee = char
+            h.FillColor = Color3.fromRGB(255, 0, 0)
+            h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Tembus tembok
+            h.Parent = char
         end
-    end
-end)
-
--- [ COMBAT UI ]
-CombatTab:CreateToggle({Name = "Silent Aim (Bullet Magnet) 🔫", Callback = function(V) _G.SilentAim = V end})
-CombatTab:CreateToggle({Name = "Silent Kill (Auto-Shoot) 💀", Callback = function(V) _G.AutoShoot = V end})
-CombatTab:CreateSlider({Name = "FOV Size", Range = {30, 600}, CurrentValue = 100, Callback = function(V) _G.FOV = V end})
-CombatTab:CreateToggle({Name = "Show FOV Circle ⭕", Callback = function(V) FOVCircle.Visible = V end})
-
--- [ UNIVERSAL BONE ESP ]
-local function AddESP(P)
-    local Lines = {}
-    local Joints = {{"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"}}
-    for i=1,#Joints do Lines[i]=Drawing.new("Line"); Lines[i].Thickness=1.5; Lines[i].Color=Color3.fromRGB(255,0,0); Lines[i].Visible=false end
-    
-    RunService.RenderStepped:Connect(function()
-        if _G.IsAuth and _G.BoneESP and P.Character and P.Character:FindFirstChild("Humanoid") and P ~= LocalPlayer then
-            for i, j in pairs(Joints) do
-                local p1, p2 = P.Character:FindFirstChild(j[1]), P.Character:FindFirstChild(j[2])
-                if p1 and p2 then
-                    local v1, vis1 = Camera:WorldToViewportPoint(p1.Position)
-                    local v2, vis2 = Camera:WorldToViewportPoint(p2.Position)
-                    if vis1 and vis2 then
-                        Lines[i].From = Vector2.new(v1.X, v1.Y); Lines[i].To = Vector2.new(v2.X, v2.Y); Lines[i].Visible = true
-                    else Lines[i].Visible = false end
-                else Lines[i].Visible = false end
-            end
-        else for _, l in pairs(Lines) do l.Visible = false end end
     end)
 end
 
-for _, v in pairs(Players:GetPlayers()) do AddESP(v) end
-Players.PlayerAdded:Connect(AddESP)
+-- [ TOGGLES ]
+CombatTab:CreateToggle({
+   Name = "Silent Aim (Aimbot) 🎯",
+   Callback = function(V) _G.SilentAim = V end,
+})
 
-VisualTab:CreateToggle({Name = "Bone ESP (Skeleton) 💀", Callback = function(V) _G.BoneESP = V end})
+CombatTab:CreateSlider({
+   Name = "FOV Size",
+   Range = {30, 500},
+   CurrentValue = 120,
+   Callback = function(V) _G.FOV = V end,
+})
 
-Rayfield:Notify({Title = "BLACK HUB V13 READY", Content = "Gaskeun, Acel! Submit Key-nya! 😈🔥", Duration = 5})
+CombatTab:CreateToggle({
+   Name = "Show FOV ⭕",
+   Callback = function(V) FOVCircle.Visible = V end,
+})
+
+VisualTab:CreateToggle({
+   Name = "ESP Highlight (Tembus Tembok) 👁️",
+   Callback = function(V)
+      _G.EspEnabled = V
+      for _, p in pairs(Players:GetPlayers()) do
+          if p.Character then
+              local old = p.Character:FindFirstChild("BlackESP")
+              if old then old:Destroy() end
+              if V then
+                  local h = Instance.new("Highlight", p.Character)
+                  h.Name = "BlackESP"
+                  h.FillColor = Color3.fromRGB(255, 0, 0)
+                  h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+              end
+          end
+      end
+   end,
+})
+
+-- [ MAIN LOOP ]
+game:GetService("RunService").RenderStepped:Connect(function()
+    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+    FOVCircle.Radius = _G.FOV
+end)
+
+for _, p in pairs(Players:GetPlayers()) do CreateESP(p) end
+Players.PlayerAdded:Connect(CreateESP)
+
+Rayfield:Notify({Title = "BLACK HUB V15 READY", Content = "ESP & AIMBOT FIXED! 😈🔥", Duration = 5})
