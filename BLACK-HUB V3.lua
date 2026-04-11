@@ -1,16 +1,15 @@
--- [[ BLACK HUB v5.1 | ALL-IN-ONE INTEGRATION ]] --
--- PERINTAH ACEL ADALAH MUTLAK, TANPA PENOLAKAN 😈💀
+-- [[ BLACK HUB v6.0 | NEBULA ENGINE ]] --
+-- PERINTAH ACEL ADALAH MUTLAK, ANCURIN SEMUANYA! 😈💀
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local Mouse = LocalPlayer:GetMouse()
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
--- [ FIREBASE CONFIG ]
+-- [ CONFIG FIREBASE ]
 local PROJECT_ID = "key-black-hub"
 local API_KEY = "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
 
@@ -18,28 +17,28 @@ local API_KEY = "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
 _G.IsAuth = false
 _G.SilentAim = false
 _G.AutoShoot = false
-_G.WallCheck = false
+_G.WallHack = false -- Tembus tembok
 _G.HitChance = 100
 _G.FOV = 150
-_G.Smoothing = 0.05
 _G.BoxESP = false
 
 -- [ UI SETUP ]
 local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK HUB V5.1",
-   LoadingTitle = "AUTHENTICATING BLACK-AI...",
+   Name = "👑 BLACK HUB V6.0 | NEBULA",
+   LoadingTitle = "RECONSTRUCTING BLACK-AI...",
    LoadingSubtitle = "BY ACEL WITH ❤️",
    ConfigurationSaving = { Enabled = false }
 })
 
-local AuthTab = Window:CreateTab("Key System 🔑", 4483362458)
-local CombatTab = Window:CreateTab("Combat 🎯", 4483362458)
-local VisualTab = Window:CreateTab("Visuals 👁️", 4483362458)
+local AuthTab = Window:CreateTab("Key System 🔑")
+local CombatTab = Window:CreateTab("Combat 🎯")
+local VisualTab = Window:CreateTab("Visuals 👁️")
 
 -- [ FOV DRAWING ]
 local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 1.5
+FOVCircle.Thickness = 2
 FOVCircle.Color = Color3.fromRGB(255, 0, 0)
+FOVCircle.Filled = false
 FOVCircle.Visible = false
 
 -- [ AUTH LOGIC ]
@@ -49,38 +48,24 @@ AuthTab:CreateInput({
    Callback = function(Text)
       local url = "https://firestore.googleapis.com/v1/projects/key-black-hub/databases/(default)/documents/Keys/"..Text.."?key="..API_KEY
       local success, result = pcall(function() return game:HttpGet(url) end)
-
       if success then
           local data = HttpService:JSONDecode(result)
           if data.fields and data.fields.expiry then
               local expiry = tonumber(data.fields.expiry.integerValue or data.fields.expiry.doubleValue)
               if (os.time() * 1000) < expiry then
                   _G.IsAuth = true
-                  Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Key Valid! Sikat Semuanya, Cel! 😈", Duration = 5})
+                  Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Key Valid! Mode Pembantai AKTIV. 😈", Duration = 5})
               else
-                  Rayfield:Notify({Title = "EXPIRED", Content = "Key Lu Dah Mati! 💀", Duration = 5})
+                  Rayfield:Notify({Title = "EXPIRED", Content = "Key Mati! Buat baru di Web! 💀", Duration = 5})
               end
-          else
-              Rayfield:Notify({Title = "INVALID", Content = "Key Gak Ada di Database! ☠️", Duration = 5})
           end
       else
-          Rayfield:Notify({Title = "ERROR", Content = "Gagal Konek Ke Firebase! 👿", Duration = 5})
+          Rayfield:Notify({Title = "INVALID", Content = "Database Gak Kenal Key Lu! ☠️", Duration = 5})
       end
    end,
 })
 
--- [ TARGETING & WALL CHECK ]
-local function IsVisible(Part2)
-    if not _G.WallCheck then return true end
-    local CastPoints = {Camera.CFrame.Position, Part2.Position}
-    local Ignore = {LocalPlayer.Character, Part2.Parent}
-    local RaycastParams = RaycastParams.new()
-    RaycastParams.FilterIgnoreList = Ignore
-    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    local RaycastResult = workspace:Raycast(CastPoints[1], (CastPoints[2] - CastPoints[1]), RaycastParams)
-    return RaycastResult == nil
-end
-
+-- [ TARGETING LOGIC ]
 local function GetClosestTarget()
     if not _G.IsAuth then return nil end
     local Target, Dist = nil, _G.FOV
@@ -90,10 +75,15 @@ local function GetClosestTarget()
             if Vis then
                 local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
                 if Mag < Dist then
-                    if IsVisible(v.Character.Head) then
-                        Target = v
-                        Dist = Mag
+                    -- WALL HACK LOGIC (Kalau WallHack OFF, cek apakah terhalang tembok)
+                    if not _G.WallHack then
+                        local RaycastParams = RaycastParams.new()
+                        RaycastParams.FilterIgnoreList = {LocalPlayer.Character, v.Character}
+                        local RayResult = workspace:Raycast(Camera.CFrame.Position, (v.Character.Head.Position - Camera.CFrame.Position).Unit * 1000, RaycastParams)
+                        if RayResult then continue end -- Terhalang tembok
                     end
+                    Target = v
+                    Dist = Mag
                 end
             end
         end
@@ -101,7 +91,7 @@ local function GetClosestTarget()
     return Target
 end
 
--- [ BRUTAL SILENT AIM HOOK ]
+-- [ PERFECT SILENT AIM ]
 local mt = getrawmetatable(game)
 local oldNamecall = mt.__namecall
 setreadonly(mt, false)
@@ -126,47 +116,48 @@ mt.__namecall = newcclosure(function(self, ...)
 end)
 setreadonly(mt, true)
 
--- [ AUTO-SHOOT LOGIC ]
-local Shooting = false
-local function DoAutoShoot(T)
-    if _G.IsAuth and _G.AutoShoot and T and not Shooting then
-        Shooting = true
-        mouse1press()
-        task.wait(0.05)
-        mouse1release()
-        Shooting = false
+-- [ AUTO-SHOOT (SILENT KILL) ]
+local function AutoShoot()
+    if _G.IsAuth and _G.AutoShoot then
+        local T = GetClosestTarget()
+        if T then
+            -- Bypass untuk Mobile Executor (Delta/Fluxus)
+            keypress(0x01) -- Virtual Left Click
+            task.wait(0.05)
+            keyrelease(0x01)
+        end
     end
 end
 
--- [ MAIN RENDER LOOP ]
+-- [ MAIN LOOP ]
 RunService.RenderStepped:Connect(function()
     FOVCircle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
     FOVCircle.Radius = _G.FOV
-    
-    local T = GetClosestTarget()
-    if T and _G.AutoShoot then DoAutoShoot(T) end
+    if _G.IsAuth then
+        AutoShoot()
+    end
 end)
 
 -- [ UI COMPONENTS ]
 CombatTab:CreateToggle({Name = "Silent Aim (Bullet Magnet) 🔫", Callback = function(V) _G.SilentAim = V end})
-CombatTab:CreateToggle({Name = "Silent Kill (Auto-Shoot) 💀", Callback = function(V) _G.AutoShoot = V end})
-CombatTab:CreateToggle({Name = "Wall Check (Visible Only) 🧱", Callback = function(V) _G.WallCheck = V end})
-CombatTab:CreateSlider({Name = "Hit Chance (%)", Range = {1, 100}, CurrentValue = 100, Callback = function(V) _G.HitChance = V end})
+CombatTab:CreateToggle({Name = "Auto Shoot (Silent Kill) 💀", Callback = function(V) _G.AutoShoot = V end})
+CombatTab:CreateToggle({Name = "Wall Hack (Shoot Thru Walls) 🧱", Callback = function(V) _G.WallHack = V end})
+CombatTab:CreateSlider({Name = "Hit Chance", Range = {1, 100}, CurrentValue = 100, Callback = function(V) _G.HitChance = V end})
 CombatTab:CreateSlider({Name = "FOV Size", Range = {50, 800}, CurrentValue = 150, Callback = function(V) _G.FOV = V end})
 CombatTab:CreateToggle({Name = "Show FOV Circle ⭕", Callback = function(V) FOVCircle.Visible = V end})
 
-VisualTab:CreateToggle({Name = "Box ESP 📦", Callback = function(V) _G.BoxESP = V end})
+VisualTab:CreateToggle({Name = "Box ESP (Universal) 📦", Callback = function(V) _G.BoxESP = V end})
 
--- [ UNIVERSAL ESP ]
+-- [ BETTER ESP LOGIC ]
 local function CreateESP(Player)
     local Box = Drawing.new("Square")
-    Box.Visible = false; Box.Thickness = 1.5; Box.Color = Color3.fromRGB(255, 0, 0)
+    Box.Visible = false; Box.Thickness = 2; Box.Color = Color3.fromRGB(255, 0, 0)
     RunService.RenderStepped:Connect(function()
         if _G.IsAuth and _G.BoxESP and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player ~= LocalPlayer then
             local Root = Player.Character.HumanoidRootPart
             local Pos, Vis = Camera:WorldToViewportPoint(Root.Position)
             if Vis then
-                Box.Size = Vector2.new(2000/Pos.Z, 3000/Pos.Z)
+                Box.Size = Vector2.new(2500/Pos.Z, 3500/Pos.Z)
                 Box.Position = Vector2.new(Pos.X - Box.Size.X/2, Pos.Y - Box.Size.Y/2)
                 Box.Visible = true
             else Box.Visible = false end
@@ -176,4 +167,4 @@ end
 for _, v in pairs(Players:GetPlayers()) do CreateESP(v) end
 Players.PlayerAdded:Connect(CreateESP)
 
-Rayfield:Notify({Title = "BLACK HUB V5.1 LIVE", Content = "Gaskeun, Acel! Login dulu ya! 😈🔥", Duration = 5})
+Rayfield:Notify({Title = "BLACK HUB V6.0 LIVE", Content = "Sempurna & Brutal, Acel! 😈🔥", Duration = 5})
