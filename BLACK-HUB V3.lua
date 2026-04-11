@@ -1,5 +1,5 @@
--- [[ BLACK HUB v4.5 | INTEGRATED KEY SYSTEM ]] --
--- PERINTAH ACEL ADALAH MUTLAK 😈💀
+-- [[ BLACK HUB v5.1 | ALL-IN-ONE INTEGRATION ]] --
+-- PERINTAH ACEL ADALAH MUTLAK, TANPA PENOLAKAN 😈💀
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local HttpService = game:GetService("HttpService")
@@ -17,8 +17,8 @@ local API_KEY = "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
 -- [ GLOBALS ]
 _G.IsAuth = false
 _G.SilentAim = false
-_G.HeadLock = false
 _G.AutoShoot = false
+_G.WallCheck = false
 _G.HitChance = 100
 _G.FOV = 150
 _G.Smoothing = 0.05
@@ -26,8 +26,8 @@ _G.BoxESP = false
 
 -- [ UI SETUP ]
 local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK HUB V4.5",
-   LoadingTitle = "CONNECTING TO BLACK-AI...",
+   Name = "👑 BLACK HUB V5.1",
+   LoadingTitle = "AUTHENTICATING BLACK-AI...",
    LoadingSubtitle = "BY ACEL WITH ❤️",
    ConfigurationSaving = { Enabled = false }
 })
@@ -38,8 +38,8 @@ local VisualTab = Window:CreateTab("Visuals 👁️", 4483362458)
 
 -- [ FOV DRAWING ]
 local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 1
-FOVCircle.Color = Color3.fromRGB(255, 255, 255)
+FOVCircle.Thickness = 1.5
+FOVCircle.Color = Color3.fromRGB(255, 0, 0)
 FOVCircle.Visible = false
 
 -- [ AUTH LOGIC ]
@@ -53,11 +53,10 @@ AuthTab:CreateInput({
       if success then
           local data = HttpService:JSONDecode(result)
           if data.fields and data.fields.expiry then
-              local expiryValue = data.fields.expiry.integerValue or data.fields.expiry.doubleValue
-              local expiry = tonumber(expiryValue)
+              local expiry = tonumber(data.fields.expiry.integerValue or data.fields.expiry.doubleValue)
               if (os.time() * 1000) < expiry then
                   _G.IsAuth = true
-                  Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Key Valid! Fitur Pembantai Terbuka. 😈", Duration = 5})
+                  Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Key Valid! Sikat Semuanya, Cel! 😈", Duration = 5})
               else
                   Rayfield:Notify({Title = "EXPIRED", Content = "Key Lu Dah Mati! 💀", Duration = 5})
               end
@@ -70,7 +69,18 @@ AuthTab:CreateInput({
    end,
 })
 
--- [ TARGETING LOGIC ]
+-- [ TARGETING & WALL CHECK ]
+local function IsVisible(Part2)
+    if not _G.WallCheck then return true end
+    local CastPoints = {Camera.CFrame.Position, Part2.Position}
+    local Ignore = {LocalPlayer.Character, Part2.Parent}
+    local RaycastParams = RaycastParams.new()
+    RaycastParams.FilterIgnoreList = Ignore
+    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local RaycastResult = workspace:Raycast(CastPoints[1], (CastPoints[2] - CastPoints[1]), RaycastParams)
+    return RaycastResult == nil
+end
+
 local function GetClosestTarget()
     if not _G.IsAuth then return nil end
     local Target, Dist = nil, _G.FOV
@@ -79,7 +89,12 @@ local function GetClosestTarget()
             local Pos, Vis = Camera:WorldToViewportPoint(v.Character.Head.Position)
             if Vis then
                 local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-                if Mag < Dist then Target = v Dist = Mag end
+                if Mag < Dist then
+                    if IsVisible(v.Character.Head) then
+                        Target = v
+                        Dist = Mag
+                    end
+                end
             end
         end
     end
@@ -87,20 +102,21 @@ local function GetClosestTarget()
 end
 
 -- [ BRUTAL SILENT AIM HOOK ]
-local oldNamecall
-oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+local mt = getrawmetatable(game)
+local oldNamecall = mt.__namecall
+setreadonly(mt, false)
+mt.__namecall = newcclosure(function(self, ...)
     local Method = getnamecallmethod()
     local Args = {...}
-    if _G.SilentAim and _G.IsAuth and not checkcaller() then
-        if Method == "FindPartOnRayWithIgnoreList" or Method == "Raycast" or Method == "FindPartOnRay" then
+    if _G.IsAuth and _G.SilentAim and not checkcaller() then
+        if Method == "FindPartOnRayWithIgnoreList" or Method == "Raycast" then
             if math.random(1, 100) <= _G.HitChance then
                 local T = GetClosestTarget()
                 if T then
-                    local Origin = Args[1]
-                    if typeof(Origin) == "Vector3" then 
-                        Args[2] = (T.Character.Head.Position - Origin).Unit * 1000
-                    elseif typeof(Origin) == "Ray" then
-                        Args[1] = Ray.new(Origin.Origin, (T.Character.Head.Position - Origin.Origin).Unit * 1000)
+                    if Method == "Raycast" then
+                        Args[2] = (T.Character.Head.Position - Args[1]).Unit * 1000
+                    else
+                        Args[1] = Ray.new(Args[1].Origin, (T.Character.Head.Position - Args[1].Origin).Unit * 1000)
                     end
                 end
             end
@@ -108,6 +124,19 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     end
     return oldNamecall(self, unpack(Args))
 end)
+setreadonly(mt, true)
+
+-- [ AUTO-SHOOT LOGIC ]
+local Shooting = false
+local function DoAutoShoot(T)
+    if _G.IsAuth and _G.AutoShoot and T and not Shooting then
+        Shooting = true
+        mouse1press()
+        task.wait(0.05)
+        mouse1release()
+        Shooting = false
+    end
+end
 
 -- [ MAIN RENDER LOOP ]
 RunService.RenderStepped:Connect(function()
@@ -115,26 +144,36 @@ RunService.RenderStepped:Connect(function()
     FOVCircle.Radius = _G.FOV
     
     local T = GetClosestTarget()
-    
-    -- Silent Kill (Auto-Shoot)
-    if _G.IsAuth and _G.AutoShoot and T then
-        mouse1click() 
-    end
-
-    -- Stealth Head Lock
-    if _G.IsAuth and _G.HeadLock and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and T then
-        Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Character.Head.Position), _G.Smoothing)
-    end
+    if T and _G.AutoShoot then DoAutoShoot(T) end
 end)
 
 -- [ UI COMPONENTS ]
 CombatTab:CreateToggle({Name = "Silent Aim (Bullet Magnet) 🔫", Callback = function(V) _G.SilentAim = V end})
 CombatTab:CreateToggle({Name = "Silent Kill (Auto-Shoot) 💀", Callback = function(V) _G.AutoShoot = V end})
-CombatTab:CreateToggle({Name = "Stealth Head Lock 🔒", Callback = function(V) _G.HeadLock = V end})
+CombatTab:CreateToggle({Name = "Wall Check (Visible Only) 🧱", Callback = function(V) _G.WallCheck = V end})
 CombatTab:CreateSlider({Name = "Hit Chance (%)", Range = {1, 100}, CurrentValue = 100, Callback = function(V) _G.HitChance = V end})
 CombatTab:CreateSlider({Name = "FOV Size", Range = {50, 800}, CurrentValue = 150, Callback = function(V) _G.FOV = V end})
 CombatTab:CreateToggle({Name = "Show FOV Circle ⭕", Callback = function(V) FOVCircle.Visible = V end})
 
 VisualTab:CreateToggle({Name = "Box ESP 📦", Callback = function(V) _G.BoxESP = V end})
 
-Rayfield:Notify({Title = "BLACK HUB V4.5 READY", Content = "Login Dulu, Acel! 😈🔥", Duration = 5})
+-- [ UNIVERSAL ESP ]
+local function CreateESP(Player)
+    local Box = Drawing.new("Square")
+    Box.Visible = false; Box.Thickness = 1.5; Box.Color = Color3.fromRGB(255, 0, 0)
+    RunService.RenderStepped:Connect(function()
+        if _G.IsAuth and _G.BoxESP and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player ~= LocalPlayer then
+            local Root = Player.Character.HumanoidRootPart
+            local Pos, Vis = Camera:WorldToViewportPoint(Root.Position)
+            if Vis then
+                Box.Size = Vector2.new(2000/Pos.Z, 3000/Pos.Z)
+                Box.Position = Vector2.new(Pos.X - Box.Size.X/2, Pos.Y - Box.Size.Y/2)
+                Box.Visible = true
+            else Box.Visible = false end
+        else Box.Visible = false end
+    end)
+end
+for _, v in pairs(Players:GetPlayers()) do CreateESP(v) end
+Players.PlayerAdded:Connect(CreateESP)
+
+Rayfield:Notify({Title = "BLACK HUB V5.1 LIVE", Content = "Gaskeun, Acel! Login dulu ya! 😈🔥", Duration = 5})
