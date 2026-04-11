@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLACK HUB ADMIN 👑</title>
+    <style>
+        body { background: #0a0a0a; color: #ff0000; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: #1a1a1a; border: 2px solid #ff0000; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 0 15px #ff0000; }
+        input, button, select { width: 100%; padding: 10px; margin-top: 10px; background: #000; border: 1px solid #ff0000; color: #fff; border-radius: 5px; }
+        button { background: #ff0000; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #fff; color: #ff0000; }
+        .key-list { margin-top: 20px; width: 100%; max-width: 400px; }
+        .key-item { background: #222; padding: 10px; border-bottom: 1px solid #444; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>👑 BLACK HUB ADMIN 👑</h1>
+
+    <div class="card">
+        <h3>CREATE NEW KEY 👿</h3>
+        <input type="text" id="keyName" placeholder="Key Name (e.g. ACEL-1234)">
+        <input type="number" id="duration" placeholder="Duration Value">
+        <select id="timeUnit">
+            <option value="hours">Hours</option>
+            <option value="days">Days</option>
+        </select>
+        <button onclick="generateKey()">GENERATE & SAVE 💀</button>
+    </div>
+
+    <div class="key-list" id="keyList">
+        <h3>ACTIVE KEYS ☠️</h3>
+        </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI",
+            authDomain: "key-black-hub.firebaseapp.com",
+            projectId: "key-black-hub",
+            storageBucket: "key-black-hub.firebasestorage.app",
+            messagingSenderId: "161948700743",
+            appId: "1:161948700743:web:90d09b536a87929b6e6162"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.generateKey = async function() {
+            const name = document.getElementById('keyName').value;
+            const val = document.getElementById('duration').value;
+            const unit = document.getElementById('timeUnit').value;
+
+            if(!name || !val) return alert("Isi yang bener, Cel! 😈");
+
+            const expiryDate = new Date();
+            if(unit === 'hours') expiryDate.setHours(expiryDate.getHours() + parseInt(val));
+            else expiryDate.setDate(expiryDate.getDate() + parseInt(val));
+
+            try {
+                await setDoc(doc(db, "Keys", name), {
+                    key: name,
+                    expiry: expiryDate.getTime(),
+                    status: "Active"
+                });
+                alert("KEY BERHASIL DISIMPAN! 💀🔥");
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Realtime listener to show keys
+        onSnapshot(collection(db, "Keys"), (snapshot) => {
+            const list = document.getElementById('keyList');
+            list.innerHTML = "<h3>ACTIVE KEYS ☠️</h3>";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const exp = new Date(data.expiry).toLocaleString();
+                list.innerHTML += `<div class="key-item"><b>${data.key}</b><br>Exp: ${exp}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>
