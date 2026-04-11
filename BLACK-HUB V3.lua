@@ -32,7 +32,7 @@ AuthTab:CreateInput({
    PlaceholderText = "Key From Web Dashboard...",
    Callback = function(Text)
       -- Fetch data dari Firestore REST API
-      local url = "https://firestore.googleapis.com/v1/projects/"..PROJECT_ID.."/databases/(default)/documents/Keys/"..Text.."?key="..API_KEY
+      local url = "https://firestore.googleapis.com/v1/projects/key-black-hub/databases/(default)/documents/Keys/"..Text.."?key="..API_KEY
       local success, result = pcall(function() return game:HttpGet(url) end)
 
       if success then
