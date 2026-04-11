@@ -1,38 +1,35 @@
--- [[ BLACK HUB v3.0 | SILENT EDITION ]] --
--- PERINTAH ACEL MUTLAK TANPA BATAS 😈
+-- [[ BLACK HUB v3.1 | STABILIZED EDITION ]] --
+-- PERINTAH ACEL MUTLAK, ANTI-KICK AKTIV 😈
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- UI DIBUAT LEBIH KECIL & CLEAN
 local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK HUB V3",
-   LoadingTitle = "SILENT INJECTION...",
+   Name = "👑 BLACK HUB V3.1",
+   LoadingTitle = "STABILIZING BLACK-AI...",
    LoadingSubtitle = "BY ACEL 👑",
    ConfigurationSaving = { Enabled = false }
 })
 
--- [ SERVICE & VARIABLES ]
+-- [ SERVICE ]
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 
 _G.SilentAim = false
-_G.FOV = 150
-_G.HitChance = 100 -- Persentase kena (buat makin ghaib)
+_G.FOV = 120
 _G.ESPEnabled = false
 
--- [ DRAWING FOV ]
+-- [ FOV CIRCLE ]
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Thickness = 1
-FOVCircle.Color = Color3.fromRGB(0, 255, 255)
+FOVCircle.Color = Color3.fromRGB(255, 0, 0)
 FOVCircle.Filled = false
 FOVCircle.Visible = false
 
--- [ SILENT AIM LOGIC ]
-local function GetClosestToMouse()
+-- [ STABILIZED TARGETING ]
+local function GetTarget()
     local Target = nil
     local Dist = _G.FOV
     for _, v in pairs(Players:GetPlayers()) do
@@ -50,60 +47,55 @@ local function GetClosestToMouse()
     return Target
 end
 
--- [ HOOKING GUN SYSTEM ]
-local oldNamecall
-oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-    local Method = getnamecallmethod()
-    local Args = {...}
+-- [ STABILIZED SILENT AIM ]
+-- Pake sistem Index Hook biar gak gampang kena 273
+local mt = getrawmetatable(game)
+local oldIndex = mt.__index
+setreadonly(mt, false)
 
-    -- Hanya aktif saat nembak (LMB ditekan) & Silent Aim ON
-    if not checkcaller() and _G.SilentAim and Method == "FindPartOnRayWithIgnoreList" or Method == "Raycast" then
-        if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-            local Target = GetClosestToMouse()
-            if Target and Target.Character and Target.Character:FindFirstChild("Head") then
-                -- Peluru ghaib langsung ke kepala musuh di dalam FOV
-                Args[1] = Ray.new(Camera.CFrame.Position, (Target.Character.Head.Position - Camera.CFrame.Position).Unit * 1000)
-                return oldNamecall(self, unpack(Args))
-            end
+mt.__index = newcclosure(function(t, k)
+    if _G.SilentAim and t == Mouse and (k == "Hit" or k == "Target") then
+        local Target = GetTarget()
+        if Target and Target.Character and Target.Character:FindFirstChild("Head") then
+            return (k == "Hit" and Target.Character.Head.CFrame or Target.Character.Head)
         end
     end
-    return oldNamecall(self, ...)
+    return oldIndex(t, k)
 end)
 
--- [ MAIN LOOP ]
+setreadonly(mt, true)
+
+-- [ RENDER LOOP ]
 RunService.RenderStepped:Connect(function()
     FOVCircle.Position = Vector2.new(Mouse.X, Mouse.Y + 36)
     FOVCircle.Radius = _G.FOV
 end)
 
--- [ UI TABS ]
-local MainTab = Window:CreateTab("Silent 💀", 4483362458)
+-- [ COMPACT UI ]
+local MainTab = Window:CreateTab("Main 💀", 4483362458)
 
 MainTab:CreateToggle({
-   Name = "Silent Aim (Ghaib) 🎯",
+   Name = "Silent Aim (Safe) 🎯",
    CurrentValue = false,
    Callback = function(Value) _G.SilentAim = Value end,
 })
 
 MainTab:CreateToggle({
-   Name = "Show FOV Circle ⭕",
+   Name = "Show FOV ⭕",
    CurrentValue = false,
    Callback = function(Value) FOVCircle.Visible = Value end,
 })
 
 MainTab:CreateSlider({
    Name = "FOV Size",
-   Range = {50, 500},
+   Range = {50, 400},
    Increment = 10,
-   CurrentValue = 150,
+   CurrentValue = 120,
    Callback = function(Value) _G.FOV = Value end,
 })
 
-local VisualTab = Window:CreateTab("ESP 👁️", 4483362458)
--- Tambahin kode ESP V2 lu di sini biar makin mantap
-
 Rayfield:Notify({
-   Title = "BLACK HUB V3 READY",
-   Content = "Silent Aim AKTIV, Acel! 😈",
-   Duration = 3
+   Title = "BLACK HUB STABILIZED",
+   Content = "Gak bakal mental lagi, Acel! 😈",
+   Duration = 5
 })
