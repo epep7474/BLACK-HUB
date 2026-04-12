@@ -1,5 +1,5 @@
--- [[ BLACK-MOON V3.3 | ANONYMOUS SLAYER ]] --
--- DATA IDENTITY: DELETED | CORE ENGINE: ACTIVE 😈💀
+-- [[ BLACK-MOON V4 | THE FINAL GHOST ]] --
+-- UI FIX | NO IDENTITY | PURE MASSACRE 😈💀
 
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
@@ -13,84 +13,75 @@ _G.Smooth = 0.08
 _G.FOV = 150
 _G.ESP = false
 
--- [[ UI CONSTRUCT (CLEAN VERSION) ]] --
+-- [[ UI CONSTRUCT ]] --
 local GUI = Instance.new("ScreenGui", game:GetService("CoreGui"))
-GUI.Name = "BlackMoon_Ghost"
+GUI.Name = "BlackMoon_V4"
 
 local Main = Instance.new("Frame", GUI)
-Main.Size = UDim2.new(0, 220, 0, 280)
-Main.Position = UDim2.new(0.5, -110, 0.5, -140)
-Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Size = UDim2.new(0, 200, 0, 250)
+Main.Position = UDim2.new(0.5, -100, 0.5, -125)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
 
-local Corner = Instance.new("UICorner", Main)
-Corner.CornerRadius = UDim.new(0, 8)
-
--- [[ HEADER (NO DATA) ]] --
+-- HEADER
 local Header = Instance.new("Frame", Main)
-Header.Size = UDim2.new(1, 0, 0, 40)
-Header.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+Header.Size = UDim2.new(1, 0, 0, 35)
+Header.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
 Header.BorderSizePixel = 0
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", Header)
-Title.Size = UDim2.new(1, -40, 1, 0)
-Title.Position = UDim2.new(0, 10, 0, 0)
-Title.Text = "BLACK-MOON GHOST 🌑"
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Text = " BLACK-MOON V4 🌑"
 Title.TextColor3 = Color3.white
-Title.TextXAlignment = "Left"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 12
+Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
-Title.Font = "GothamBold"
-Title.TextSize = 14
 
--- [[ MINIMIZE ]] --
-local MinBtn = Instance.new("TextButton", Header)
-MinBtn.Size = UDim2.new(0, 30, 0, 30)
-MinBtn.Position = UDim2.new(1, -35, 0, 5)
-MinBtn.Text = "-"
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-MinBtn.TextColor3 = Color3.white
+-- BUTTON CONTAINER (BIAR GAK ILANG)
+local Container = Instance.new("ScrollingFrame", Main)
+Container.Size = UDim2.new(1, -10, 1, -45)
+Container.Position = UDim2.new(0, 5, 0, 40)
+Container.BackgroundTransparency = 1
+Container.BorderSizePixel = 0
+Container.ScrollBarThickness = 2
 
-local isMin = false
-MinBtn.MouseButton1Click:Connect(function()
-    if not isMin then
-        Main:TweenSize(UDim2.new(0, 220, 0, 40), "Out", "Quad", 0.3, true)
-        MinBtn.Text = "+"
-        isMin = true
-    else
-        Main:TweenSize(UDim2.new(0, 220, 0, 280), "Out", "Quad", 0.3, true)
-        MinBtn.Text = "-"
-        isMin = false
-    end
-end)
+local Layout = Instance.new("UIListLayout", Container)
+Layout.Padding = UDim.new(0, 5)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- [[ SIMPLE TOGGLES ]] --
-local function AddButton(text, pos, callback)
-    local btn = Instance.new("TextButton", Main)
-    btn.Size = UDim2.new(0.9, 0, 0, 35)
-    btn.Position = UDim2.new(0.05, 0, 0, pos)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Font = "Gotham"
-    Instance.new("UICorner", btn)
-    
-    local act = false
-    btn.MouseButton1Click:Connect(function()
-        act = not act
-        btn.TextColor3 = act and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(200, 200, 200)
-        btn.BackgroundColor3 = act and Color3.fromRGB(40, 0, 0) or Color3.fromRGB(20, 20, 20)
-        callback(act)
+-- TOGGLE FUNCTION
+local function NewToggle(text, callback)
+    local Btn = Instance.new("TextButton", Container)
+    Btn.Size = UDim2.new(1, 0, 0, 35)
+    Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Btn.Text = text .. " [OFF]"
+    Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Btn.Font = Enum.Font.Gotham
+    Btn.TextSize = 11
+    Instance.new("UICorner", Btn)
+
+    local state = false
+    Btn.MouseButton1Click:Connect(function()
+        state = not state
+        Btn.Text = text .. (state and " [ON]" or " [OFF]")
+        Btn.BackgroundColor3 = state and Color3.fromRGB(80, 0, 0) or Color3.fromRGB(25, 25, 25)
+        Btn.TextColor3 = state and Color3.white or Color3.fromRGB(200, 200, 200)
+        callback(state)
     end)
 end
 
-AddButton("AIMBOT PLAYER", 60, function(v) _G.Aimbot = v end)
-AddButton("TARGET MOBS (NPC)", 105, function(v) _G.TargetMobs = v end)
-AddButton("ESP HIGHLIGHT", 150, function(v) _G.ESP = v end)
-AddButton("SPEED BYPASS (50)", 195, function(v) LP.Character.Humanoid.WalkSpeed = v and 50 or 16 end)
+-- [[ INJECT BUTTONS ]] --
+NewToggle("AIMBOT PLAYERS", function(v) _G.Aimbot = v end)
+NewToggle("TARGET MOBS/NPC", function(v) _G.TargetMobs = v end)
+NewToggle("ESP HIGHLIGHT", function(v) _G.ESP = v end)
+NewToggle("SPEED BYPASS", function(v) LP.Character.Humanoid.WalkSpeed = v and 50 or 16 end)
 
--- [[ ENGINE ]] --
+-- [[ CORE ENGINE ]] --
 local function GetClosest()
     local target, dist = nil, _G.FOV
     local list = {}
