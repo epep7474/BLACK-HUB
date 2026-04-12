@@ -25,9 +25,9 @@ Circle.Visible = false
 
 -- [[ WINDOW SETUP ]] --
 local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK-MOON V22 | ACEL",
-   LoadingTitle = "AUTHENTICATING ACEL'S KEY...",
-   LoadingSubtitle = "BY BLACK-AI",
+   Name = "👑 BLACK-MOON V1 | VERSION",
+   LoadingTitle = "AUTHENTICATING KEYS...",
+   LoadingSubtitle = "BY FANZ",
    ConfigurationSaving = { Enabled = false }
 })
 
