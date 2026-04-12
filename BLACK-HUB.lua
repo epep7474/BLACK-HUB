@@ -1,109 +1,108 @@
--- [[ BLACK-MOON V1 - EXCLUSIVE FOR ACEL ]] --
--- [[ CREATED BY BLACK-AI ]] --
+-- [[ BLACK-MOON V1 FIXED - EXCLUSIVE FOR ACEL👑 ]] --
+-- [[ RE-DEPLOYED BY BLACK-AI ]] --
 
-local Library = {} -- Simple UI Lib logic
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+
+-- Hapus UI lama kalau ada
+if CoreGui:FindFirstChild("BlackMoonUI") then
+    CoreGui.BlackMoonUI:Destroy()
+end
+
 local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local Container = Instance.new("ScrollingFrame")
-
--- Setup UI
 ScreenGui.Name = "BlackMoonUI"
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+local MainFrame = Instance.new("Frame")
 MainFrame.Name = "Main"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 350)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.Position = UDim2.new(0.1, 0, 0.2, 0)
+MainFrame.Size = UDim2.new(0, 220, 0, 280)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
+local Title = Instance.new("TextLabel")
 Title.Text = "BLACK-MOON V1 👑"
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.Size = UDim2.new(1, -30, 0, 35)
+Title.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.Parent = MainFrame
 
+-- TOMBOL CLOSE (Biar lu gak ngeluh gak bisa ditutup!)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Text = "X"
+CloseBtn.Size = UDim2.new(0, 30, 0, 35)
+CloseBtn.Position = UDim2.new(1, -30, 0, 0)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseBtn.TextColor3 = Color3.white
+CloseBtn.Parent = MainFrame
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+local Container = Instance.new("ScrollingFrame")
 Container.Parent = MainFrame
-Container.Position = UDim2.new(0, 0, 0, 45)
-Container.Size = UDim2.new(1, 0, 1, -45)
+Container.Position = UDim2.new(0, 5, 0, 40)
+Container.Size = UDim2.new(1, -10, 1, -45)
 Container.BackgroundTransparency = 1
 Container.CanvasSize = UDim2.new(0, 0, 1.5, 0)
+Container.ScrollBarThickness = 2
+
+local Layout = Instance.new("UIListLayout")
+Layout.Parent = Container
+Layout.Padding = UDim.new(0, 5)
 
 -- [[ SETTINGS ]] --
-local Settings = {
-    Aimbot = false,
-    Headlock = 80,
-    ESP = false,
-    Fly = false,
-    Noclip = false,
-    Speed = 50
-}
+local Settings = { Aimbot = false, Headlock = 80, ESP = false, Fly = false, Noclip = false }
 
--- [[ FUNCTIONS ]] --
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-local Mouse = LocalPlayer:GetMouse()
-
-local function GetTarget()
-    local Target = nil
-    local Dist = math.huge
-    for _, v in pairs(Players:GetPlayers()) do
-        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-            local Pos, OnScreen = Camera:WorldToViewportPoint(v.Character.Head.Position)
-            if OnScreen then
-                local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
-                if Mag < Dist and Mag < 200 then
-                    Dist = Mag
-                    Target = v
-                end
-            end
-        end
-    end
-    return Target
-end
-
--- [[ UI ELEMENTS ]] --
-local function AddToggle(name, var)
+-- [[ UI TOGGLE GENERATOR ]] --
+local function CreateButton(name, var)
     local Btn = Instance.new("TextButton")
     Btn.Text = name .. ": OFF"
-    Btn.Size = UDim2.new(0.9, 0, 0, 40)
-    Btn.Position = UDim2.new(0.05, 0, 0, (#Container:GetChildren() * 45))
-    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Btn.Size = UDim2.new(1, 0, 0, 35)
+    Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Btn.TextColor3 = Color3.white
+    Btn.Font = Enum.Font.Gotham
     Btn.Parent = Container
     
     Btn.MouseButton1Click:Connect(function()
         Settings[var] = not Settings[var]
         Btn.Text = name .. (Settings[var] and ": ON" or ": OFF")
-        Btn.BackgroundColor3 = Settings[var] and Color3.fromRGB(0, 100, 0) or Color3.fromRGB(40, 40, 40)
+        Btn.BackgroundColor3 = Settings[var] and Color3.fromRGB(150, 0, 0) or Color3.fromRGB(30, 30, 30)
     end)
 end
 
-AddToggle("AIMBOT", "Aimbot")
-AddToggle("ESP VISION", "ESP")
-AddToggle("FLIGHT", "Fly")
-AddToggle("WALLHACK", "Noclip")
+CreateButton("AIMBOT (Head)", "Aimbot")
+CreateButton("ESP VISION", "ESP")
+CreateButton("FLY MODE", "Fly")
+CreateButton("WALLHACK", "Noclip")
 
--- [[ CORE LOOP ]] --
+-- [[ CHEAT LOGIC ]] --
 game:GetService("RunService").RenderStepped:Connect(function()
-    -- AIMBOT + HEADLOCK %
     if Settings.Aimbot then
-        local T = GetTarget()
-        if T then
+        local Target = nil
+        local Dist = 200
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                local Pos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(v.Character.Head.Position)
+                if OnScreen then
+                    local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(LocalPlayer:GetMouse().X, LocalPlayer:GetMouse().Y)).Magnitude
+                    if Mag < Dist then Dist = Mag; Target = v end
+                end
+            end
+        end
+        if Target then
             local Smooth = 1 - (Settings.Headlock / 100)
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Character.Head.Position), 1 - Smooth)
+            workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(CFrame.new(workspace.CurrentCamera.CFrame.Position, Target.Character.Head.Position), 1 - Smooth)
         end
     end
     
-    -- FLY & NOCLIP
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        if Settings.Fly then
-            LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 2, 0) -- Hover
-        end
+        if Settings.Fly then LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 5, 0) end
         if Settings.Noclip then
             for _, p in pairs(LocalPlayer.Character:GetDescendants()) do
                 if p:IsA("BasePart") then p.CanCollide = false end
@@ -112,7 +111,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- ESP SYSTEM
+-- ESP Update
 task.spawn(function()
     while task.wait(1) do
         for _, p in pairs(Players:GetPlayers()) do
@@ -127,4 +126,4 @@ task.spawn(function()
     end
 end)
 
-print("🔓SYSTEM_MUTLAK_2026🔓 - SCRIPT DEPLOYED BY BLACK-AI")
+print("🔓SYSTEM_MUTLAK_2026🔓 - FIXED VERSION READY")
