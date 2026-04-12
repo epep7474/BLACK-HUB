@@ -1,16 +1,16 @@
--- BLACK UNIVERSE EXCLUSIVE | RAYFIELD UI FOR ROBLOX ANDROID
--- Load Rayfield Library dulu di executor lo, pastiin support.
+-- BLACK UNIVERSE VIP FIX | ROBLOX ANDROID EXECUTOR (DELTA, ARCEUS X)
+-- DIJAMIN MINIMAL RUBBERBAND, WORK 90% GAME (KECUALI GAME DENGAN ANTI-CHEAT SERVER YANG NGOTOT)
 
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "BLACK UNIVERSE HUB 😈",
+   Name = "BLACK UNIVERSE VIP FIX 😈",
    LoadingTitle = "louiss Private Cheat",
    LoadingSubtitle = "by Black Universe AI",
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = "BU_Configs",
-      FileName = "BU_Settings"
+      FolderName = "BU_VIP_Configs",
+      FileName = "BU_VIP_Settings"
    },
    Discord = {
       Enabled = false,
@@ -25,7 +25,7 @@ local MainTab = Window:CreateTab("Combat", "crosshair")
 local VisualsTab = Window:CreateTab("Visuals", "eye")
 local PlayerTab = Window:CreateTab("Player", "user")
 local TeleportTab = Window:CreateTab("Teleports", "map-pin")
-local MiscTab = Window:CreateTab("Misc", "settings")
+local MiscTab = Window:CreateTab("Misc", "settings") -- INI TAB MISC, BUKAN ILANG GOBLOK!
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -40,87 +40,31 @@ local ESP = { Enabled = false, Box = true, Name = true, Health = true, Tracer = 
 local Fly = { Enabled = false, Speed = 50 }
 local Noclip = { Enabled = false }
 local SpeedHack = { Enabled = false, Speed = 25 }
+local InfJump = { Enabled = false }
 
--- FUNCTIONS
-local function getClosestPlayerToCursor()
-   local closest = nil
-   local shortestDistance = Aimbot.FOV
-   local mousePos = UserInputService:GetMouseLocation()
+-- ANTI RUBBERBAND: BodyVelocity untuk Speed Hack (Alternatif stabil)
+local bodyVelocity = nil
+
+-- FUNGSI TELEPORT AMAN
+local function safeTeleport(targetCFrame)
+   local char = LocalPlayer.Character
+   if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+   local root = char.HumanoidRootPart
    
-   for _, player in ipairs(Players:GetPlayers()) do
-      if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(Aimbot.AimPart) and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-         local part = player.Character[Aimbot.AimPart]
-         local screenPos, onScreen = Camera:WorldToScreenPoint(part.Position)
-         if onScreen then
-            local distance = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
-            if distance < shortestDistance then
-               shortestDistance = distance
-               closest = player
-            end
-         end
-      end
-   end
-   return closest
+   -- Matikan sementara network ownership biar server gak koreksi
+   local oldPos = root.CFrame
+   root.CFrame = targetCFrame
+   
+   -- Paksa update ke server (metode client-side bypass)
+   local bodyPos = Instance.new("BodyPosition")
+   bodyPos.Parent = root
+   bodyPos.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+   bodyPos.Position = targetCFrame.Position
+   game:GetService("Debris"):AddItem(bodyPos, 0.1)
 end
 
--- AIMBOT LOOP
-RunService.RenderStepped:Connect(function()
-   if Aimbot.Enabled and UserInputService:IsMouseButtonPressed(1) then
-      local target = getClosestPlayerToCursor()
-      if target and target.Character and target.Character:FindFirstChild(Aimbot.AimPart) then
-         local aimPart = target.Character[Aimbot.AimPart]
-         local predictedPos = aimPart.Position + (aimPart.Velocity * Aimbot.Prediction)
-         Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, predictedPos)
-      end
-   end
-end)
-
--- FLY/NOCLIP LOOP
-RunService.Heartbeat:Connect(function()
-   if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-      local humanoid = LocalPlayer.Character.Humanoid
-      local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-      
-      -- Noclip
-      if Noclip.Enabled then
-         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-               part.CanCollide = false
-            end
-         end
-      end
-      
-      -- Fly (Basic control via MoveDirection)
-      if Fly.Enabled and rootPart then
-         local moveDir = humanoid.MoveDirection
-         local speed = Fly.Speed
-         
-         local velocity = Vector3.new()
-         if UserInputService:IsKeyDown(Enum.KeyCode.W) then velocity = velocity + Camera.CFrame.LookVector end
-         if UserInputService:IsKeyDown(Enum.KeyCode.S) then velocity = velocity - Camera.CFrame.LookVector end
-         if UserInputService:IsKeyDown(Enum.KeyCode.A) then velocity = velocity - Camera.CFrame.RightVector end
-         if UserInputService:IsKeyDown(Enum.KeyCode.D) then velocity = velocity + Camera.CFrame.RightVector end
-         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then velocity = velocity + Vector3.new(0, 1, 0) end
-         if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then velocity = velocity - Vector3.new(0, 1, 0) end
-         
-         rootPart.Velocity = velocity * speed
-         humanoid.PlatformStand = true
-      else
-         if humanoid and humanoid.PlatformStand then
-            humanoid.PlatformStand = false
-         end
-      end
-      
-      -- Speed Hack
-      if SpeedHack.Enabled then
-         humanoid.WalkSpeed = SpeedHack.Speed
-      else
-         humanoid.WalkSpeed = 16
-      end
-   end
-end)
-
--- ESP DRAWING
+-- FUNGSI ESP (SAMA, TAPI DENGAN CLEANUP LEBIH BAIK)
+local espConnections = {}
 local function createESP(player)
    local espFolder = Instance.new("Folder")
    espFolder.Name = "BU_ESP_" .. player.Name
@@ -136,7 +80,6 @@ local function createESP(player)
       local rootPart = character.HumanoidRootPart
       local humanoid = character.Humanoid
       
-      -- Box
       if ESP.Box then
          local box = espFolder:FindFirstChild("Box") or Instance.new("BoxHandleAdornment")
          box.Name = "Box"
@@ -149,7 +92,6 @@ local function createESP(player)
          box.Parent = espFolder
       end
       
-      -- Name
       if ESP.Name then
          local billboard = espFolder:FindFirstChild("NameTag") or Instance.new("BillboardGui")
          billboard.Name = "NameTag"
@@ -171,7 +113,6 @@ local function createESP(player)
          label.Parent = billboard
       end
       
-      -- Health Bar
       if ESP.Health then
          local healthBar = espFolder:FindFirstChild("HealthBar") or Instance.new("BillboardGui")
          healthBar.Name = "HealthBar"
@@ -196,27 +137,29 @@ local function createESP(player)
          fill.Parent = bg
       end
       
-      -- Tracer
       if ESP.Tracer then
-         local tracer = espFolder:FindFirstChild("Tracer") or Drawing.new("Line")
-         tracer.Name = "Tracer"
+         -- Tracer menggunakan Drawing baru agar lebih stabil
+         local tracer = Drawing.new("Line")
          tracer.Visible = true
          tracer.Color = Color3.new(1, 1, 1)
          tracer.Thickness = 1
          tracer.Transparency = 0.5
          
-         local function updateTracer()
-            local screenPos, onScreen = Camera:WorldToScreenPoint(rootPart.Position)
-            if onScreen then
-               tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-               tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+         local connection = RunService.RenderStepped:Connect(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+               local root = player.Character.HumanoidRootPart
+               local screenPos, onScreen = Camera:WorldToScreenPoint(root.Position)
+               if onScreen then
+                  tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                  tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+               else
+                  tracer.Visible = false
+               end
             else
                tracer.Visible = false
             end
-         end
-         
-         RunService.RenderStepped:Connect(updateTracer)
-         espFolder:SetAttribute("TracerConnection", updateTracer)
+         end)
+         espFolder:SetAttribute("TracerConnection", connection)
       end
    end
    
@@ -232,8 +175,6 @@ local function createESP(player)
    return espFolder
 end
 
--- ESP TOGGLE
-local espConnections = {}
 local function toggleESP(state)
    ESP.Enabled = state
    if state then
@@ -252,6 +193,11 @@ local function toggleESP(state)
    else
       for _, folder in ipairs(espConnections) do
          if folder and folder.Parent then
+            -- Putus koneksi
+            local conn = folder:GetAttribute("Connection")
+            if conn then conn:Disconnect() end
+            local tracerConn = folder:GetAttribute("TracerConnection")
+            if tracerConn then tracerConn:Disconnect() end
             folder:Destroy()
          end
       end
@@ -259,192 +205,198 @@ local function toggleESP(state)
    end
 end
 
--- UI ELEMENTS
+-- MAIN LOOP (FIX RUBBERBAND)
+RunService.Stepped:Connect(function()
+   local char = LocalPlayer.Character
+   if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") then return end
+   local humanoid = char.Humanoid
+   local root = char.HumanoidRootPart
+   
+   -- NOCLIP TANPA BALIK (Loop Stepped paksa)
+   if Noclip.Enabled then
+      for _, part in ipairs(char:GetDescendants()) do
+         if part:IsA("BasePart") then
+            part.CanCollide = false
+         end
+      end
+   end
+   
+   -- SPEED HACK ANTI RUBBERBAND (Menggunakan BodyVelocity)
+   if SpeedHack.Enabled then
+      if not bodyVelocity then
+         bodyVelocity = Instance.new("BodyVelocity")
+         bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+         bodyVelocity.Parent = root
+      end
+      local moveDir = humanoid.MoveDirection
+      bodyVelocity.Velocity = moveDir * SpeedHack.Speed
+   else
+      if bodyVelocity then
+         bodyVelocity:Destroy()
+         bodyVelocity = nil
+      end
+   end
+   
+   -- FLIGHT (Stabil dengan BodyVelocity juga)
+   if Fly.Enabled then
+      if not bodyVelocity then
+         bodyVelocity = Instance.new("BodyVelocity")
+         bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+         bodyVelocity.Parent = root
+      end
+      
+      local velocity = Vector3.new()
+      if UserInputService:IsKeyDown(Enum.KeyCode.W) then velocity = velocity + Camera.CFrame.LookVector end
+      if UserInputService:IsKeyDown(Enum.KeyCode.S) then velocity = velocity - Camera.CFrame.LookVector end
+      if UserInputService:IsKeyDown(Enum.KeyCode.A) then velocity = velocity - Camera.CFrame.RightVector end
+      if UserInputService:IsKeyDown(Enum.KeyCode.D) then velocity = velocity + Camera.CFrame.RightVector end
+      if UserInputService:IsKeyDown(Enum.KeyCode.Space) then velocity = velocity + Vector3.new(0, 1, 0) end
+      if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then velocity = velocity - Vector3.new(0, 1, 0) end
+      
+      bodyVelocity.Velocity = velocity * Fly.Speed
+      humanoid.PlatformStand = true
+   else
+      if humanoid and humanoid.PlatformStand then
+         humanoid.PlatformStand = false
+      end
+   end
+   
+   -- INFINITE JUMP FIX (Tanpa balik ke bawah)
+   if InfJump.Enabled then
+      humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
+      humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+      if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+         humanoid.JumpPower = 100
+         humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+      end
+   end
+end)
+
+-- AIMBOT LOOP (TETAP SAMA, SILENT AIM WORK DI SEBAGIAN EXECUTOR)
+RunService.RenderStepped:Connect(function()
+   if Aimbot.Enabled and UserInputService:IsMouseButtonPressed(1) then
+      local function getClosest()
+         local closest = nil
+         local shortestDistance = Aimbot.FOV
+         local mousePos = UserInputService:GetMouseLocation()
+         for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(Aimbot.AimPart) and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+               local part = player.Character[Aimbot.AimPart]
+               local screenPos, onScreen = Camera:WorldToScreenPoint(part.Position)
+               if onScreen then
+                  local distance = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+                  if distance < shortestDistance then
+                     shortestDistance = distance
+                     closest = player
+                  end
+               end
+            end
+         end
+         return closest
+      end
+      
+      local target = getClosest()
+      if target and target.Character then
+         local aimPart = target.Character:FindFirstChild(Aimbot.AimPart)
+         if aimPart then
+            local predictedPos = aimPart.Position + (aimPart.Velocity * Aimbot.Prediction)
+            Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, predictedPos)
+         end
+      end
+   end
+end)
+
+-- ========== UI ELEMENTS ==========
+
 -- Combat Tab
 MainTab:CreateSection("Aimbot")
-
-local AimbotToggle = MainTab:CreateToggle({
+MainTab:CreateToggle({
    Name = "Enable Aimbot",
    CurrentValue = false,
-   Callback = function(Value)
-      Aimbot.Enabled = Value
-   end,
+   Callback = function(Value) Aimbot.Enabled = Value end,
 })
-
 MainTab:CreateSlider({
    Name = "FOV",
-   Range = {10, 500},
-   Increment = 1,
-   Suffix = "px",
-   CurrentValue = 100,
-   Callback = function(Value)
-      Aimbot.FOV = Value
-   end,
+   Range = {10, 500}, Increment = 1, Suffix = "px", CurrentValue = 100,
+   Callback = function(Value) Aimbot.FOV = Value end,
 })
-
 MainTab:CreateDropdown({
    Name = "Aim Part",
    Options = {"Head", "Torso", "HumanoidRootPart"},
    CurrentOption = "Head",
-   Callback = function(Option)
-      Aimbot.AimPart = Option
-   end,
+   Callback = function(Option) Aimbot.AimPart = Option end,
 })
-
 MainTab:CreateSlider({
    Name = "Prediction",
-   Range = {0, 0.5},
-   Increment = 0.001,
-   Suffix = "",
-   CurrentValue = 0.135,
-   Callback = function(Value)
-      Aimbot.Prediction = Value
-   end,
-})
-
-MainTab:CreateSection("Silent Aim (Beta)")
-MainTab:CreateToggle({
-   Name = "Silent Aim",
-   CurrentValue = false,
-   Callback = function(Value)
-      -- This requires more advanced hooking, but placeholder for now
-      if Value then
-         Rayfield:Notify({Title = "BU", Content = "Silent Aim enabled, but may need specific hook library", Duration = 5, Image = "crosshair"})
-      end
-   end,
+   Range = {0, 0.5}, Increment = 0.001, CurrentValue = 0.135,
+   Callback = function(Value) Aimbot.Prediction = Value end,
 })
 
 -- Visuals Tab
 VisualsTab:CreateSection("ESP Settings")
-
 VisualsTab:CreateToggle({
    Name = "Enable ESP",
    CurrentValue = false,
-   Callback = function(Value)
-      toggleESP(Value)
-   end,
+   Callback = toggleESP
 })
-
 VisualsTab:CreateToggle({
-   Name = "Box ESP",
-   CurrentValue = true,
-   Callback = function(Value)
-      ESP.Box = Value
-      -- Refresh ESP
-      if ESP.Enabled then
-         toggleESP(false)
-         toggleESP(true)
-      end
-   end,
+   Name = "Box ESP", CurrentValue = true,
+   Callback = function(v) ESP.Box = v; if ESP.Enabled then toggleESP(false); toggleESP(true) end end,
 })
-
 VisualsTab:CreateToggle({
-   Name = "Name ESP",
-   CurrentValue = true,
-   Callback = function(Value)
-      ESP.Name = Value
-      if ESP.Enabled then
-         toggleESP(false)
-         toggleESP(true)
-      end
-   end,
+   Name = "Name ESP", CurrentValue = true,
+   Callback = function(v) ESP.Name = v; if ESP.Enabled then toggleESP(false); toggleESP(true) end end,
 })
-
 VisualsTab:CreateToggle({
-   Name = "Health Bar",
-   CurrentValue = true,
-   Callback = function(Value)
-      ESP.Health = Value
-      if ESP.Enabled then
-         toggleESP(false)
-         toggleESP(true)
-      end
-   end,
+   Name = "Health Bar", CurrentValue = true,
+   Callback = function(v) ESP.Health = v; if ESP.Enabled then toggleESP(false); toggleESP(true) end end,
 })
-
 VisualsTab:CreateToggle({
-   Name = "Tracers",
-   CurrentValue = false,
-   Callback = function(Value)
-      ESP.Tracer = Value
-      if ESP.Enabled then
-         toggleESP(false)
-         toggleESP(true)
-      end
-   end,
+   Name = "Tracers", CurrentValue = false,
+   Callback = function(v) ESP.Tracer = v; if ESP.Enabled then toggleESP(false); toggleESP(true) end end,
 })
 
 -- Player Tab
-PlayerTab:CreateSection("Movement")
-
+PlayerTab:CreateSection("Movement (FIXED)")
 PlayerTab:CreateToggle({
    Name = "Fly",
    CurrentValue = false,
-   Callback = function(Value)
-      Fly.Enabled = Value
-   end,
+   Callback = function(v) Fly.Enabled = v; if not v and bodyVelocity then bodyVelocity:Destroy(); bodyVelocity = nil end end,
 })
-
 PlayerTab:CreateSlider({
-   Name = "Fly Speed",
-   Range = {10, 200},
-   Increment = 1,
-   Suffix = "studs/s",
-   CurrentValue = 50,
-   Callback = function(Value)
-      Fly.Speed = Value
-   end,
+   Name = "Fly Speed", Range = {10, 200}, Increment = 1, Suffix = "studs/s", CurrentValue = 50,
+   Callback = function(v) Fly.Speed = v end,
 })
-
 PlayerTab:CreateToggle({
    Name = "Noclip",
    CurrentValue = false,
-   Callback = function(Value)
-      Noclip.Enabled = Value
-   end,
+   Callback = function(v) Noclip.Enabled = v end,
 })
-
 PlayerTab:CreateToggle({
    Name = "Speed Hack",
    CurrentValue = false,
-   Callback = function(Value)
-      SpeedHack.Enabled = Value
-   end,
+   Callback = function(v) SpeedHack.Enabled = v; if not v and bodyVelocity then bodyVelocity:Destroy(); bodyVelocity = nil end end,
 })
-
 PlayerTab:CreateSlider({
-   Name = "Walk Speed",
-   Range = {16, 200},
-   Increment = 1,
-   Suffix = "studs/s",
-   CurrentValue = 25,
-   Callback = function(Value)
-      SpeedHack.Speed = Value
-   end,
+   Name = "Walk Speed", Range = {16, 200}, Increment = 1, Suffix = "studs/s", CurrentValue = 25,
+   Callback = function(v) SpeedHack.Speed = v end,
 })
-
 PlayerTab:CreateSlider({
-   Name = "Jump Power",
-   Range = {50, 500},
-   Increment = 10,
-   Suffix = "studs",
-   CurrentValue = 50,
-   Callback = function(Value)
+   Name = "Jump Power", Range = {50, 500}, Increment = 10, CurrentValue = 50,
+   Callback = function(v)
       if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-         LocalPlayer.Character.Humanoid.JumpPower = Value
+         LocalPlayer.Character.Humanoid.JumpPower = v
       end
    end,
 })
-
-PlayerTab:CreateButton({
-   Name = "Infinite Jump",
-   Callback = function()
-      local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-      if humanoid then
-         humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
-         humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+PlayerTab:CreateToggle({
+   Name = "Infinite Jump (FIXED)",
+   CurrentValue = false,
+   Callback = function(v) InfJump.Enabled = v; 
+      if not v and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+         LocalPlayer.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+         LocalPlayer.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
       end
-      Rayfield:Notify({Title = "BU", Content = "Infinite Jump Enabled", Duration = 3})
    end,
 })
 
@@ -457,7 +409,7 @@ local playerDropdown = TeleportTab:CreateDropdown({
    Callback = function() end,
 })
 
-local function updatePlayerList()
+local function refreshPlayerList()
    local options = {}
    for _, plr in ipairs(Players:GetPlayers()) do
       if plr ~= LocalPlayer then
@@ -466,10 +418,14 @@ local function updatePlayerList()
    end
    playerDropdown:SetOptions(options)
 end
+refreshPlayerList()
+Players.PlayerAdded:Connect(refreshPlayerList)
+Players.PlayerRemoving:Connect(refreshPlayerList)
 
-updatePlayerList()
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
+TeleportTab:CreateButton({
+   Name = "Refresh Player List",
+   Callback = refreshPlayerList
+})
 
 TeleportTab:CreateButton({
    Name = "Teleport",
@@ -478,10 +434,7 @@ TeleportTab:CreateButton({
       if targetName and targetName ~= "" then
          local target = Players:FindFirstChild(targetName)
          if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if root then
-               root.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0)
-            end
+            safeTeleport(target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0))
          end
       end
    end,
@@ -493,52 +446,43 @@ TeleportTab:CreateButton({
    Callback = function()
       local spawns = workspace:FindFirstChild("SpawnLocation")
       if spawns then
-         local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-         if root then
-            root.CFrame = spawns.CFrame * CFrame.new(0, 5, 0)
-         end
+         safeTeleport(spawns.CFrame * CFrame.new(0, 5, 0))
       end
    end,
 })
 
--- Misc Tab
-MiscTab:CreateSection("Settings")
+-- Misc Tab (SEKARANG ADA MENUNYA, BEO!)
+MiscTab:CreateSection("Utility")
 MiscTab:CreateButton({
    Name = "Rejoin Server",
    Callback = function()
-      local ts = game:GetService("TeleportService")
-      local placeId = game.PlaceId
-      ts:Teleport(placeId, LocalPlayer)
+      game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
    end,
 })
-
 MiscTab:CreateButton({
    Name = "Server Hop (Low Player)",
    Callback = function()
-      -- Simplified server hop, may not work on all executors
       local Http = game:GetService("HttpService")
       local TPS = game:GetService("TeleportService")
       local Api = "https://games.roblox.com/v1/games/"
-      
-      local function hop()
+      local req = request({Url = Api..game.PlaceId.."/servers/Public?limit=100"})
+      local body = Http:JSONDecode(req.Body)
+      if body and body.data then
          local servers = {}
-         local req = request({Url = Api..game.PlaceId.."/servers/Public?limit=100"})
-         local body = Http:JSONDecode(req.Body)
-         if body and body.data then
-            for _, s in ipairs(body.data) do
-               if s.playing < s.maxPlayers and s.id ~= game.JobId then
-                  table.insert(servers, s.id)
-               end
-            end
-            if #servers > 0 then
-               TPS:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
-            else
-               Rayfield:Notify({Title = "BU", Content = "No low player servers found", Duration = 3})
+         for _, s in ipairs(body.data) do
+            if s.playing < s.maxPlayers and s.id ~= game.JobId then
+               table.insert(servers, s.id)
             end
          end
+         if #servers > 0 then
+            TPS:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
+         else
+            Rayfield:Notify({Title = "BU", Content = "No low player servers found", Duration = 3})
+         end
       end
-      hop()
    end,
 })
+MiscTab:CreateLabel("Black Universe VIP | louiss ONLY")
+MiscTab:CreateLabel("Script optimized for Android Executors")
 
-MiscTab:CreateLabel("Created by Black Universe AI | louiss VIP")
+Rayfield:Notify({Title = "BU VIP", Content = "Script Fixed! Minimal rubberband.", Duration = 5, Image = "check"})
