@@ -1,142 +1,133 @@
--- [[ BLACK-MOON V3 | CUSTOM MINIMALIST ENGINE ]] --
--- PERINTAH ACEL ADALAH MUTLAK! 😈💀
+-- [[ BLACK-MOON V3.3 | ANONYMOUS SLAYER ]] --
+-- DATA IDENTITY: DELETED | CORE ENGINE: ACTIVE 😈💀
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 
 -- [[ SETTINGS ]] --
 _G.Aimbot = false
-_G.TargetPlayers = true
-_G.TargetMobs = false -- TARGET NPC/MOB
+_G.TargetMobs = false
 _G.Smooth = 0.08
 _G.FOV = 150
 _G.ESP = false
 
--- [[ CUSTOM UI CONSTRUCT ]] --
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "BlackMoonV3"
+-- [[ UI CONSTRUCT (CLEAN VERSION) ]] --
+local GUI = Instance.new("ScreenGui", game:GetService("CoreGui"))
+GUI.Name = "BlackMoon_Ghost"
 
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 220, 0, 300)
-MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true -- Biar bisa digeser
+local Main = Instance.new("Frame", GUI)
+Main.Size = UDim2.new(0, 220, 0, 280)
+Main.Position = UDim2.new(0.5, -110, 0.5, -140)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
 
-local Corner = Instance.new("UICorner", MainFrame)
+local Corner = Instance.new("UICorner", Main)
 Corner.CornerRadius = UDim.new(0, 8)
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Text = "BLACK-MOON V3 👑"
-Title.TextColor3 = Color3.fromRGB(255, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
+-- [[ HEADER (NO DATA) ]] --
+local Header = Instance.new("Frame", Main)
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+Header.BorderSizePixel = 0
 
--- [[ MINIMIZE BUTTON ]] --
-local MinBtn = Instance.new("TextButton", MainFrame)
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(1, -40, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "BLACK-MOON GHOST 🌑"
+Title.TextColor3 = Color3.white
+Title.TextXAlignment = "Left"
+Title.BackgroundTransparency = 1
+Title.Font = "GothamBold"
+Title.TextSize = 14
+
+-- [[ MINIMIZE ]] --
+local MinBtn = Instance.new("TextButton", Header)
 MinBtn.Size = UDim2.new(0, 30, 0, 30)
 MinBtn.Position = UDim2.new(1, -35, 0, 5)
 MinBtn.Text = "-"
-MinBtn.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+MinBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
 MinBtn.TextColor3 = Color3.white
 
-local isMinimized = false
+local isMin = false
 MinBtn.MouseButton1Click:Connect(function()
-    if not isMinimized then
-        MainFrame:TweenSize(UDim2.new(0, 220, 0, 40), "Out", "Quad", 0.3, true)
-        isMinimized = true
+    if not isMin then
+        Main:TweenSize(UDim2.new(0, 220, 0, 40), "Out", "Quad", 0.3, true)
         MinBtn.Text = "+"
+        isMin = true
     else
-        MainFrame:TweenSize(UDim2.new(0, 220, 0, 300), "Out", "Quad", 0.3, true)
-        isMinimized = false
+        Main:TweenSize(UDim2.new(0, 220, 0, 280), "Out", "Quad", 0.3, true)
         MinBtn.Text = "-"
+        isMin = false
     end
 end)
 
--- [[ UI BUTTON CREATOR ]] --
-local function CreateToggle(name, pos, callback)
-    local btn = Instance.new("TextButton", MainFrame)
+-- [[ SIMPLE TOGGLES ]] --
+local function AddButton(text, pos, callback)
+    local btn = Instance.new("TextButton", Main)
     btn.Size = UDim2.new(0.9, 0, 0, 35)
     btn.Position = UDim2.new(0.05, 0, 0, pos)
-    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    btn.Text = text
     btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 14
+    btn.Font = "Gotham"
+    Instance.new("UICorner", btn)
     
-    local state = false
+    local act = false
     btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = name .. ": " .. (state and "ON" or "OFF")
-        btn.TextColor3 = state and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(200, 200, 200)
-        callback(state)
+        act = not act
+        btn.TextColor3 = act and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(200, 200, 200)
+        btn.BackgroundColor3 = act and Color3.fromRGB(40, 0, 0) or Color3.fromRGB(20, 20, 20)
+        callback(act)
     end)
 end
 
-CreateToggle("Target Player", 60, function(v) _G.TargetPlayers = v end)
-CreateToggle("Target Mobs (NPC)", 105, function(v) _G.TargetMobs = v end)
-CreateToggle("Aimbot Lock", 150, function(v) _G.Aimbot = v end)
-CreateToggle("Player ESP", 195, function(v) _G.ESP = v end)
+AddButton("AIMBOT PLAYER", 60, function(v) _G.Aimbot = v end)
+AddButton("TARGET MOBS (NPC)", 105, function(v) _G.TargetMobs = v end)
+AddButton("ESP HIGHLIGHT", 150, function(v) _G.ESP = v end)
+AddButton("SPEED BYPASS (50)", 195, function(v) LP.Character.Humanoid.WalkSpeed = v and 50 or 16 end)
 
--- [[ TARGETING LOGIC ]] --
-local function GetClosestTarget()
-    local target = nil
-    local dist = _G.FOV
-    
-    local potentialTargets = {}
-    
-    -- Ambil Player
-    if _G.TargetPlayers then
-        for _, v in pairs(Players:GetPlayers()) do
-            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-                table.insert(potentialTargets, v.Character)
-            end
+-- [[ ENGINE ]] --
+local function GetClosest()
+    local target, dist = nil, _G.FOV
+    local list = {}
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= LP and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            table.insert(list, v.Character)
         end
     end
-    
-    -- Ambil Mobs/NPC (Cari di Workspace)
     if _G.TargetMobs then
         for _, v in pairs(workspace:GetDescendants()) do
             if v:IsA("Model") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") then
                 if not Players:GetPlayerFromCharacter(v) and v.Humanoid.Health > 0 then
-                    table.insert(potentialTargets, v)
+                    table.insert(list, v)
                 end
             end
         end
     end
-    
-    for _, char in pairs(potentialTargets) do
+    for _, char in pairs(list) do
         local pos, vis = Camera:WorldToViewportPoint(char.Head.Position)
         if vis then
             local mag = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-            if mag < dist then
-                target = char
-                dist = mag
-            end
+            if mag < dist then target = char dist = mag end
         end
     end
     return target
 end
 
--- [[ ENGINE LOOP ]] --
 RunService.RenderStepped:Connect(function()
     if _G.Aimbot then
-        local T = GetClosestTarget()
-        if T and T:FindFirstChild("Head") then
+        local T = GetClosest()
+        if T then
             Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Head.Position), _G.Smooth)
         end
     end
-    
     if _G.ESP then
         for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
+            if p ~= LP and p.Character then
                 local h = p.Character:FindFirstChild("BM_ESP") or Instance.new("Highlight", p.Character)
                 h.Name = "BM_ESP"
                 h.FillColor = Color3.fromRGB(255, 0, 0)
@@ -145,5 +136,3 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
-Rayfield:Notify({Title = "V3 READY", Content = "Custom UI Loaded, Cel! 💀", Duration = 3})
