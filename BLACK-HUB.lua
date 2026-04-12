@@ -1,4 +1,4 @@
--- [[ BLACK-MOON V22 | FINAL VERSION ]] --
+-- [[ BLACK-MOON V1 | VERSION ]] --
 -- PERINTAH ACEL ADALAH MUTLAK, BANTAI SEMUANYA! 😈💀
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -49,7 +49,7 @@ LoginTab:CreateButton({
       
       if success and not result:find("error") then
           _G.IsAuth = true
-          Rayfield:Notify({Title = "BERHASIL!", Content = "Key Valid! Bantai Mereka, Cel! 😈", Duration = 5})
+          Rayfield:Notify({Title = "BERHASIL!", Content = "Key Valid! Bantai Mereka, Cuk 😈", Duration = 5})
           _G.SetupMainTabs() -- Panggil fungsi buat bikin tab cheat
           LoginTab:Destroy() -- Hapus tab login
       else
@@ -164,4 +164,4 @@ task.spawn(function()
     end
 end)
 
-print("🔓SYSTEM_MUTLAK_2026🔓 - BLACK-MOON V22 DEPLOYED")
+print("🔓SYSTEM_MUTLAK_2026🔓 - BLACK-MOON V1 DEPLOYED")
