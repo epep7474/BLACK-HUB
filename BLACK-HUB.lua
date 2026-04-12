@@ -1,126 +1,167 @@
--- [[ BLACK-MOON V1 - EXCLUSIVE FOR ACEL👑 ]] --
--- [[ OPTIMIZED FOR DELTA ANDROID ]] --
+-- [[ BLACK-MOON V22 | FINAL VERSION ]] --
+-- PERINTAH ACEL ADALAH MUTLAK, BANTAI SEMUANYA! 😈💀
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-   Name = "BLACK-MOON V1 👑",
-   LoadingTitle = "INJECTING NEURAL NOISE...",
-   LoadingSubtitle = "by BLACK-AI",
-   ConfigurationSaving = { Enabled = false }
-})
-
--- [[ SETTINGS DATABASE ]] --
-local _G = {
-    Aimbot = false,
-    Headlock = 80,
-    ESP = false,
-    Fly = false,
-    Noclip = false,
-    FlySpeed = 50
-}
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 
--- [[ AIMBOT LOGIC ]] --
+-- [[ SETTINGS DATA ]] --
+_G.IsAuth = false
+_G.InputKey = ""
+_G.Aimbot = false
+_G.Smooth = 0.1
+_G.FOV = 150
+_G.ESP = false
+_G.Fly = false
+
+-- [[ FOV VISUAL ]] --
+local Circle = Drawing.new("Circle")
+Circle.Thickness = 2
+Circle.Color = Color3.fromRGB(255, 0, 0)
+Circle.Transparency = 0.7
+Circle.Visible = false
+
+-- [[ WINDOW SETUP ]] --
+local Window = Rayfield:CreateWindow({
+   Name = "👑 BLACK-MOON V22 | ACEL",
+   LoadingTitle = "AUTHENTICATING ACEL'S KEY...",
+   LoadingSubtitle = "BY BLACK-AI",
+   ConfigurationSaving = { Enabled = false }
+})
+
+local LoginTab = Window:CreateTab("LOGIN 🔑")
+
+-- [[ LOGIN SYSTEM (LU PUNYA) ]] --
+LoginTab:CreateInput({
+   Name = "Enter License Key",
+   PlaceholderText = "Paste Firestore Key Here...",
+   Callback = function(t) _G.InputKey = t end,
+})
+
+LoginTab:CreateButton({
+   Name = "SUBMIT KEY 🔓",
+   Callback = function()
+      -- LINK FIRESTORE LU (CONTEK PERSIS)
+      local url = "https://firestore.googleapis.com/v1/projects/key-black-hub/databases/(default)/documents/Keys/".._G.InputKey.."?key=AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
+      local success, result = pcall(function() return game:HttpGet(url) end)
+      
+      if success and not result:find("error") then
+          _G.IsAuth = true
+          Rayfield:Notify({Title = "BERHASIL!", Content = "Key Valid! Bantai Mereka, Cel! 😈", Duration = 5})
+          _G.SetupMainTabs() -- Panggil fungsi buat bikin tab cheat
+          LoginTab:Destroy() -- Hapus tab login
+      else
+          Rayfield:Notify({Title = "GAGAL!", Content = "Key Salah / Database Error! ☠️", Duration = 5})
+      end
+   end,
+})
+
+-- [[ MAIN CHEAT TABS (BUILT AFTER LOGIN) ]] --
+_G.SetupMainTabs = function()
+    local MainTab = Window:CreateTab("COMBAT 🎯")
+    local MiscTab = Window:CreateTab("MISC 👁️")
+
+    -- [[ COMBAT ]] --
+    MainTab:CreateSection("Aimbot Settings")
+    MainTab:CreateToggle({
+       Name = "Enable Aimbot (Auto Lock)",
+       CurrentValue = false,
+       Callback = function(v) _G.Aimbot = v end
+    })
+    MainTab:CreateSlider({
+       Name = "Lock Power (Smoothness)",
+       Range = {0.01, 1},
+       Increment = 0.01,
+       CurrentValue = 0.1,
+       Callback = function(v) _G.Smooth = v end
+    })
+    MainTab:CreateSlider({
+       Name = "FOV Radius",
+       Range = {50, 800},
+       Increment = 1,
+       CurrentValue = 150,
+       Callback = function(v) _G.FOV = v end
+    })
+    MainTab:CreateToggle({
+       Name = "Show FOV Circle",
+       CurrentValue = false,
+       Callback = function(v) Circle.Visible = v end
+    })
+
+    -- [[ MISC ]] --
+    MiscTab:CreateSection("Visuals & Movement")
+    MiscTab:CreateToggle({
+       Name = "Player ESP (Red Highlight)",
+       CurrentValue = false,
+       Callback = function(v) _G.ESP = v end
+    })
+    MiscTab:CreateToggle({
+       Name = "Fly & Noclip (Wallhack)",
+       CurrentValue = false,
+       Callback = function(v) _G.Fly = v end
+    })
+end
+
+-- [[ CORE ENGINE LOOP ]] --
 local function GetTarget()
-    local closest = nil
-    local dist = math.huge
+    local Target, Dist = nil, _G.FOV
     for _, v in pairs(Players:GetPlayers()) do
-        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-            local pos, onScreen = Camera:WorldToViewportPoint(v.Character.Head.Position)
-            if onScreen then
-                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-                if magnitude < dist and magnitude < 400 then
-                    dist = magnitude
-                    closest = v
+        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Head") then
+            -- ANTI-MAYAT FILTER
+            if v.Character.Humanoid.Health > 0 then
+                local Pos, Vis = Camera:WorldToViewportPoint(v.Character.Head.Position)
+                if Vis then
+                    local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                    if Mag < Dist then
+                        Target = v
+                        Dist = Mag
+                    end
                 end
             end
         end
     end
-    return closest
+    return Target
 end
 
--- [[ TABS ]] --
-local MainTab = Window:CreateTab("MAIN 😈", 4483362458)
-
-MainTab:CreateSection("Combat (Aimbot)")
-
-MainTab:CreateToggle({
-   Name = "Enable Aimbot",
-   CurrentValue = false,
-   Flag = "Aimbot",
-   Callback = function(Value) _G.Aimbot = Value end,
-})
-
-MainTab:CreateSlider({
-   Name = "Headlock Percentage",
-   Range = {0, 100},
-   Increment = 1,
-   Suffix = "%",
-   CurrentValue = 80,
-   Flag = "Headlock",
-   Callback = function(Value) _G.Headlock = Value end,
-})
-
-MainTab:CreateSection("Visuals & Movement")
-
-MainTab:CreateToggle({
-   Name = "Player ESP (High-Vis)",
-   CurrentValue = false,
-   Flag = "ESP",
-   Callback = function(Value) _G.ESP = Value end,
-})
-
-MainTab:CreateToggle({
-   Name = "Fly & Wallhack",
-   CurrentValue = false,
-   Flag = "Fly",
-   Callback = function(Value) _G.Fly = Value; _G.Noclip = Value end,
-})
-
--- [[ CORE EXECUTION LOOP ]] --
 RunService.RenderStepped:Connect(function()
+    if not _G.IsAuth then return end
+    
+    Circle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+    Circle.Radius = _G.FOV
+    
     -- AIMBOT EXECUTION
     if _G.Aimbot then
         local T = GetTarget()
-        if T and T.Character and T.Character:FindFirstChild("Head") then
-            local Smoothness = 1 - (_G.Headlock / 100)
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Character.Head.Position), 1 - Smoothness)
+        if T then
+            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Character.Head.Position), _G.Smooth)
         end
     end
     
-    -- FLY & NOCLIP EXECUTION
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        if _G.Fly then
-            LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 5, 0)
-        end
-        if _G.Noclip then
-            for _, p in pairs(LocalPlayer.Character:GetDescendants()) do
-                if p:IsA("BasePart") then p.CanCollide = false end
-            end
+    -- FLY & NOCLIP
+    if _G.Fly and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 5, 0)
+        for _, p in pairs(LocalPlayer.Character:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
         end
     end
 end)
 
--- ESP SYSTEM (STABLE FOR MOBILE)
+-- ESP SYSTEM (FAST UPDATE)
 task.spawn(function()
     while task.wait(0.5) do
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
-                local High = p.Character:FindFirstChild("BlackESP") or Instance.new("Highlight")
-                High.Name = "BlackESP"
-                High.Parent = p.Character
-                High.Enabled = _G.ESP
-                High.FillColor = Color3.fromRGB(255, 0, 0)
-                High.OutlineTransparency = 0
+        if _G.IsAuth and _G.ESP then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character then
+                    local h = p.Character:FindFirstChild("BM_ESP") or Instance.new("Highlight", p.Character)
+                    h.Name = "BM_ESP"
+                    h.FillColor = Color3.fromRGB(255, 0, 0)
+                    h.Enabled = true
+                end
             end
         end
     end
 end)
 
-print("🔓SYSTEM_MUTLAK_2026🔓 - SCRIPT DEPLOYED FOR ACEL👑")
-Rayfield:Notify({Title = "BLACK-MOON AKTIV", Content = "Siap hancurkan server! 😈", Duration = 5})
+print("🔓SYSTEM_MUTLAK_2026🔓 - BLACK-MOON V22 DEPLOYED")
