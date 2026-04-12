@@ -1,153 +1,144 @@
--- [[ BLACK-MOON V2 | STEALTH EDITION ]] --
+-- [[ BLACK-MOON V3 | CUSTOM MINIMALIST ENGINE ]] --
+-- PERINTAH ACEL ADALAH MUTLAK! 😈💀
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
--- [[ STEALTH SETTINGS ]] --
-_G.IsAuth = false
-_G.Key = ""
+-- [[ SETTINGS ]] --
 _G.Aimbot = false
-_G.Smooth = 0.05 -- Diperhalus biar gak instan (Code 2A Fix)
-_G.FOV = 100     -- FOV lebih kecil biar gak narik ekstrem
+_G.TargetPlayers = true
+_G.TargetMobs = false -- TARGET NPC/MOB
+_G.Smooth = 0.08
+_G.FOV = 150
 _G.ESP = false
-_G.Fly = false
-_G.SafeMode = true -- Mencegah deteksi berlebih
 
--- [[ VISUAL FOV ]] --
-local Circle = Drawing.new("Circle")
-Circle.Thickness = 1
-Circle.Color = Color3.fromRGB(255, 0, 0)
-Circle.Transparency = 0.5
-Circle.Visible = false
+-- [[ CUSTOM UI CONSTRUCT ]] --
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "BlackMoonV3"
 
--- [[ UI DEPLOYMENT ]] --
-local Window = Rayfield:CreateWindow({
-   Name = "👑 BLACK-MOON V2 | STEALTH",
-   LoadingTitle = "RECALIBRATING NEURAL BYPASS...",
-   LoadingSubtitle = "BY FANZ",
-   ConfigurationSaving = { Enabled = false }
-})
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 220, 0, 300)
+MainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true -- Biar bisa digeser
 
-local LoginTab = Window:CreateTab("AUTH 🔒")
+local Corner = Instance.new("UICorner", MainFrame)
+Corner.CornerRadius = UDim.new(0, 8)
 
--- [[ SYSTEM KEY (FIRESTORE) ]] --
-LoginTab:CreateInput({
-   Name = "Input License Key",
-   PlaceholderText = "Paste Key Here...",
-   Callback = function(t) _G.Key = t end,
-})
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "BLACK-MOON V3 👑"
+Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
 
-LoginTab:CreateButton({
-   Name = "BYPASS LOGIN 🔓",
-   Callback = function()
-      local u = "https://firestore.googleapis.com/v1/projects/key-black-hub/databases/(default)/documents/Keys/".._G.Key.."?key=AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI"
-      local success, result = pcall(function() return game:HttpGet(u) end)
-      
-      if success and not result:find("error") then
-          _G.IsAuth = true
-          Rayfield:Notify({Title = "ACCESS GRANTED", Content = "Welcome Back, MEN👑. Stay Stealth!", Duration = 5})
-          _G.InitMain() 
-          LoginTab:Destroy()
-      else
-          Rayfield:Notify({Title = "ACCESS DENIED", Content = "Key Sampah atau Database Error! 💀", Duration = 5})
-      end
-   end,
-})
+-- [[ MINIMIZE BUTTON ]] --
+local MinBtn = Instance.new("TextButton", MainFrame)
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -35, 0, 5)
+MinBtn.Text = "-"
+MinBtn.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+MinBtn.TextColor3 = Color3.white
 
--- [[ MAIN SYSTEM ]] --
-_G.InitMain = function()
-    local CombatTab = Window:CreateTab("COMBAT 🎯")
-    local MiscTab = Window:CreateTab("MISC 👽")
+local isMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    if not isMinimized then
+        MainFrame:TweenSize(UDim2.new(0, 220, 0, 40), "Out", "Quad", 0.3, true)
+        isMinimized = true
+        MinBtn.Text = "+"
+    else
+        MainFrame:TweenSize(UDim2.new(0, 220, 0, 300), "Out", "Quad", 0.3, true)
+        isMinimized = false
+        MinBtn.Text = "-"
+    end
+end)
 
-    CombatTab:CreateSection("Humanized Aimbot")
-    CombatTab:CreateToggle({
-       Name = "Safe Aimbot (Legit Lock)",
-       CurrentValue = false,
-       Callback = function(v) _G.Aimbot = v end
-    })
-    CombatTab:CreateSlider({
-       Name = "Lock Smoothness",
-       Range = {0.01, 0.5},
-       Increment = 0.01,
-       CurrentValue = 0.05,
-       Callback = function(v) _G.Smooth = v end
-    })
-    CombatTab:CreateSlider({
-       Name = "FOV Circle Size",
-       Range = {50, 500},
-       Increment = 1,
-       CurrentValue = 100,
-       Callback = function(v) _G.FOV = v end
-    })
-    CombatTab:CreateToggle({
-       Name = "Show FOV",
-       CurrentValue = false,
-       Callback = function(v) Circle.Visible = v end
-    })
-
-    MiscTab:CreateSection("Stealth Movement")
-    MiscTab:CreateToggle({
-       Name = "Player ESP",
-       CurrentValue = false,
-       Callback = function(v) _G.ESP = v end
-    })
-    MiscTab:CreateToggle({
-       Name = "Safe Fly (Low Velocity)",
-       CurrentValue = false,
-       Callback = function(v) _G.Fly = v end
-    })
+-- [[ UI BUTTON CREATOR ]] --
+local function CreateToggle(name, pos, callback)
+    local btn = Instance.new("TextButton", MainFrame)
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Position = UDim2.new(0.05, 0, 0, pos)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.Text = name .. ": OFF"
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = name .. ": " .. (state and "ON" or "OFF")
+        btn.TextColor3 = state and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(200, 200, 200)
+        callback(state)
+    end)
 end
 
--- [[ CORE ENGINE ]] --
-local function GetClosest()
-    local Target, Dist = nil, _G.FOV
-    for _, v in pairs(Players:GetPlayers()) do
-        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            local Pos, Vis = Camera:WorldToViewportPoint(v.Character.Head.Position)
-            if Vis then
-                local Mag = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-                if Mag < Dist then
-                    Target = v
-                    Dist = Mag
+CreateToggle("Target Player", 60, function(v) _G.TargetPlayers = v end)
+CreateToggle("Target Mobs (NPC)", 105, function(v) _G.TargetMobs = v end)
+CreateToggle("Aimbot Lock", 150, function(v) _G.Aimbot = v end)
+CreateToggle("Player ESP", 195, function(v) _G.ESP = v end)
+
+-- [[ TARGETING LOGIC ]] --
+local function GetClosestTarget()
+    local target = nil
+    local dist = _G.FOV
+    
+    local potentialTargets = {}
+    
+    -- Ambil Player
+    if _G.TargetPlayers then
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+                table.insert(potentialTargets, v.Character)
+            end
+        end
+    end
+    
+    -- Ambil Mobs/NPC (Cari di Workspace)
+    if _G.TargetMobs then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") and v:FindFirstChild("Head") then
+                if not Players:GetPlayerFromCharacter(v) and v.Humanoid.Health > 0 then
+                    table.insert(potentialTargets, v)
                 end
             end
         end
     end
-    return Target
+    
+    for _, char in pairs(potentialTargets) do
+        local pos, vis = Camera:WorldToViewportPoint(char.Head.Position)
+        if vis then
+            local mag = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+            if mag < dist then
+                target = char
+                dist = mag
+            end
+        end
+    end
+    return target
 end
 
+-- [[ ENGINE LOOP ]] --
 RunService.RenderStepped:Connect(function()
-    if not _G.IsAuth then return end
-    
-    Circle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
-    Circle.Radius = _G.FOV
-    
-    -- STEALTH AIMBOT
     if _G.Aimbot then
-        local T = GetClosest()
-        if T then
-            -- Smooth lerping biar gak patah-patah (Fix Code 2A)
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Character.Head.Position), _G.Smooth)
+        local T = GetClosestTarget()
+        if T and T:FindFirstChild("Head") then
+            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, T.Head.Position), _G.Smooth)
         end
     end
     
-    -- SAFE FLY (Mencegah Kick Suspicious Activity)
-    if _G.Fly and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 1.5, 0) -- Lebih smooth, gak narik ekstrem
-        for _, p in pairs(LocalPlayer.Character:GetDescendants()) do
-            if p:IsA("BasePart") then p.CanCollide = false end
-        end
-    end
-    
-    -- ESP LOGIC
     if _G.ESP then
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character then
-                local h = p.Character:FindFirstChild("BM_V2_ESP") or Instance.new("Highlight", p.Character)
-                h.Name = "BM_V2_ESP"
+                local h = p.Character:FindFirstChild("BM_ESP") or Instance.new("Highlight", p.Character)
+                h.Name = "BM_ESP"
                 h.FillColor = Color3.fromRGB(255, 0, 0)
                 h.Enabled = true
             end
@@ -155,4 +146,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-print("🔓BLACK-MOON V2 ACTIVE🔓 - STAY BRUTAL, FANZ")
+Rayfield:Notify({Title = "V3 READY", Content = "Custom UI Loaded, Cel! 💀", Duration = 3})
