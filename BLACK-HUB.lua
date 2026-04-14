@@ -1,8 +1,10 @@
--- [[ BLACK UNIVERSE V3.2 - FLICK EDITION (SINGLE WINDOW FIX) ]] --
+-- [[ BLACK UNIVERSE V4 - FLICK EDITION (KAVO UI) ]] --
 -- Firebase: key-black-hub | Format Expiry: YYYY-MM-DD
--- Fix: Login & Menu dalam SATU WINDOW (Anti Gagal Load)
+-- UI: Kavo UI (Anti Gagal Load)
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Load Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("BLACK UNIVERSE V4 - FLICK", "DarkTheme")
 
 -- Services
 local Players = game:GetService("Players")
@@ -46,7 +48,7 @@ local ESPElements = {}
 
 -- ========== FUNCTIONS ==========
 
--- Firebase Auth Check (BACA STRING YYYY-MM-DD)
+-- Firebase Auth Check
 local function checkKey(key)
     local url = "https://firestore.googleapis.com/v1/projects/" .. FirebaseConfig.ProjectID .. "/databases/(default)/documents/" .. FirebaseConfig.Collection .. "/" .. key .. "?key=" .. FirebaseConfig.APIKey
     local success, result = pcall(function() return game:HttpGet(url) end)
@@ -251,101 +253,88 @@ if _G.Misc.FPSBoost then
     workspace.Terrain.WaterWaveSize = 0
 end
 
--- ========== UI CREATION (SATU WINDOW, DUA TAB) ==========
-local Window = Rayfield:CreateWindow({
-    Name = "🌌 BLACK UNIVERSE V3.2 - FLICK 🌌",
-    LoadingTitle = "INJECTING DARK MATTER...",
-    LoadingSubtitle = "louiss Private Access",
-    ConfigurationSaving = { Enabled = false }
-})
+-- ========== UI CREATION (KAVO UI - ANTI GAGAL) ==========
 
-local LoginTab = Window:CreateTab("🔐 LOGIN", 4483362458)
-local CombatTab = Window:CreateTab("🎯 COMBAT", 4483362458)
-local VisualsTab = Window:CreateTab("👁️ VISUALS", 4483362458)
-local MiscTab = Window:CreateTab("⚙️ MISC", 4483362458)
+-- Tab Login
+local LoginTab = Window:NewTab("🔐 LOGIN")
+local LoginSection = LoginTab:NewSection("Masukkan License Key")
 
--- Default: sembunyikan tab menu sampai login sukses
-CombatTab:SetVisible(false)
-VisualsTab:SetVisible(false)
-MiscTab:SetVisible(false)
+local KeyInput
+LoginSection:NewTextBox("License Key", "XXXX-XXXX-XXXX", function(t)
+    _G.Auth.Key = t
+end)
 
--- ===== LOGIN TAB =====
-LoginTab:CreateSection("Enter License Key")
-LoginTab:CreateInput({
-    Name = "License Key",
-    PlaceholderText = "XXXX-XXXX-XXXX",
-    Callback = function(t) _G.Auth.Key = t end
-})
-
-LoginTab:CreateButton({
-    Name = "🔓 UNLOCK",
-    Callback = function()
-        local isValid, msg = checkKey(_G.Auth.Key)
-        if isValid then
-            _G.Auth.IsAuth = true
-            Rayfield:Notify({ Title = "ACCESS GRANTED", Content = "Key valid until: " .. msg, Duration = 5 })
-            
-            -- Tampilkan tab menu, sembunyikan tab login
-            LoginTab:SetVisible(false)
-            CombatTab:SetVisible(true)
-            VisualsTab:SetVisible(true)
-            MiscTab:SetVisible(true)
-        else
-            Rayfield:Notify({ Title = "ACCESS DENIED", Content = msg, Duration = 5 })
-        end
-    end
-})
-
-LoginTab:CreateSection("Info")
-LoginTab:CreateLabel("Black Universe V3.2 - Flick Edition")
-LoginTab:CreateLabel("Single Window Fix")
-
--- ===== COMBAT TAB =====
-CombatTab:CreateSection("Aimbot Settings")
-CombatTab:CreateToggle({ Name = "Enable Aimbot", Callback = function(v) _G.Aimbot.Enabled = v end })
-CombatTab:CreateToggle({ Name = "Silent Aimbot", CurrentValue = true, Callback = function(v) _G.Aimbot.Silent = v end })
-CombatTab:CreateToggle({ Name = "Trigger Bot", Callback = function(v) _G.Aimbot.TriggerBot = v end })
-CombatTab:CreateSlider({ Name = "Trigger Delay", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.05, Callback = function(v) _G.Aimbot.TriggerDelay = v end })
-CombatTab:CreateToggle({ Name = "Show FOV Circle", Callback = function(v) _G.Aimbot.ShowFOV = v end })
-CombatTab:CreateSlider({ Name = "FOV Radius", Range = {50,500}, Increment = 10, CurrentValue = 200, Callback = function(v) _G.Aimbot.FOV = v end })
-CombatTab:CreateSlider({ Name = "Smoothing", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.03, Callback = function(v) _G.Aimbot.Smoothing = v end })
-CombatTab:CreateDropdown({ Name = "Aim Part", Options = {"Head","Torso","HumanoidRootPart"}, CurrentOption = "Head", Callback = function(o) _G.Aimbot.AimPart = o end })
-
--- ===== VISUALS TAB =====
-VisualsTab:CreateSection("ESP Settings")
-VisualsTab:CreateToggle({ Name = "Enable ESP", Callback = toggleESP })
-VisualsTab:CreateToggle({ Name = "Box ESP", CurrentValue = true, Callback = function(v) _G.ESP.Box = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-VisualsTab:CreateToggle({ Name = "Name ESP", CurrentValue = true, Callback = function(v) _G.ESP.Name = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-VisualsTab:CreateToggle({ Name = "Health Bar", CurrentValue = true, Callback = function(v) _G.ESP.Health = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-VisualsTab:CreateToggle({ Name = "Tracers", CurrentValue = true, Callback = function(v) _G.ESP.Tracer = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-VisualsTab:CreateToggle({ Name = "Distance", CurrentValue = true, Callback = function(v) _G.ESP.Distance = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-VisualsTab:CreateColorPicker({ Name = "ESP Color", Color = Color3.fromRGB(255,0,0), Callback = function(c) _G.ESP.Color = c; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-
--- ===== MISC TAB =====
-MiscTab:CreateSection("Server")
-MiscTab:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
-MiscTab:CreateButton({ Name = "Server Hop", Callback = function()
-    local req = syn and syn.request or http_request or request
-    if req then
-        local url = "https://games.roblox.com/v1/games/https:/136801880565837/servers/Public?limit=100"
-        local data = req({Url = url}); local body = HttpService:JSONDecode(data.Body)
-        if body and body.data then
-            local servers = {}
-            for _, s in ipairs(body.data) do
-                if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end
+LoginSection:NewButton("🔓 UNLOCK", function()
+    local isValid, msg = checkKey(_G.Auth.Key)
+    if isValid then
+        _G.Auth.IsAuth = true
+        
+        -- Hapus tab login, tampilkan menu utama
+        Window:Destroy()
+        
+        -- Buat window baru dengan menu utama
+        local MainWindow = Library.CreateLib("BLACK UNIVERSE V4 - MENU", "DarkTheme")
+        
+        local CombatTab = MainWindow:NewTab("🎯 COMBAT")
+        local VisualsTab = MainWindow:NewTab("👁️ VISUALS")
+        local MiscTab = MainWindow:NewTab("⚙️ MISC")
+        
+        -- Combat Section
+        local AimbotSection = CombatTab:NewSection("Aimbot Settings")
+        AimbotSection:NewToggle("Enable Aimbot", "Legit/Silent Aimbot", function(v) _G.Aimbot.Enabled = v end)
+        AimbotSection:NewToggle("Silent Aimbot", "Tanpa gerak kamera", function(v) _G.Aimbot.Silent = v end)
+        AimbotSection:NewToggle("Trigger Bot", "Auto tembak", function(v) _G.Aimbot.TriggerBot = v end)
+        AimbotSection:NewSlider("Trigger Delay", "Delay antar tembakan", 0.3, 0.01, 0.05, function(v) _G.Aimbot.TriggerDelay = v end)
+        AimbotSection:NewToggle("Show FOV Circle", "Lingkaran FOV", function(v) _G.Aimbot.ShowFOV = v end)
+        AimbotSection:NewSlider("FOV Radius", "Ukuran FOV", 500, 50, 200, function(v) _G.Aimbot.FOV = v end)
+        AimbotSection:NewSlider("Smoothing", "Kehalusan aim", 0.3, 0.01, 0.03, function(v) _G.Aimbot.Smoothing = v end)
+        AimbotSection:NewDropdown("Aim Part", "Bagian tubuh", {"Head","Torso","HumanoidRootPart"}, function(o) _G.Aimbot.AimPart = o end)
+        
+        -- Visuals Section
+        local ESPSection = VisualsTab:NewSection("ESP Settings")
+        ESPSection:NewToggle("Enable ESP", "Wallhack", toggleESP)
+        ESPSection:NewToggle("Box ESP", "Kotak", function(v) _G.ESP.Box = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end)
+        ESPSection:NewToggle("Name ESP", "Nama", function(v) _G.ESP.Name = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end)
+        ESPSection:NewToggle("Health Bar", "Darah", function(v) _G.ESP.Health = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end)
+        ESPSection:NewToggle("Tracers", "Garis", function(v) _G.ESP.Tracer = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end)
+        ESPSection:NewToggle("Distance", "Jarak", function(v) _G.ESP.Distance = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end)
+        
+        -- Misc Section
+        local ServerSection = MiscTab:NewSection("Server")
+        ServerSection:NewButton("Rejoin Server", "Masuk ulang", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+        ServerSection:NewButton("Server Hop", "Cari server sepi", function()
+            local req = syn and syn.request or http_request or request
+            if req then
+                local url = "https://games.roblox.com/v1/games/136801880565837/servers/Public?limit=100"
+                local data = req({Url = url}); local body = HttpService:JSONDecode(data.Body)
+                if body and body.data then
+                    local servers = {}
+                    for _, s in ipairs(body.data) do
+                        if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end
+                    end
+                    if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)], LocalPlayer) end
+                end
             end
-            if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)], LocalPlayer) end
-        end
+        end)
+        
+        local UtilitySection = MiscTab:NewSection("Utility")
+        UtilitySection:NewToggle("Anti-AFK", "Gak kena kick", function(v) _G.Misc.AntiAFK = v end)
+        UtilitySection:NewToggle("FPS Booster", "Lancarin game", function(v) _G.Misc.FPSBoost = v end)
+        
+        local CreditsSection = MiscTab:NewSection("Credits")
+        CreditsSection:NewLabel("BLACK UNIVERSE V4 - FLICK")
+        CreditsSection:NewLabel("Kavo UI Edition")
+        CreditsSection:NewLabel("Dedicated to louiss 👑")
+        
+        Library:Notify("✅ ACCESS GRANTED", "Key valid until: " .. msg, 5)
+    else
+        Library:Notify("❌ ACCESS DENIED", msg, 5)
     end
-end })
+end)
 
-MiscTab:CreateSection("Utility")
-MiscTab:CreateToggle({ Name = "Anti-AFK", CurrentValue = true, Callback = function(v) _G.Misc.AntiAFK = v end })
-MiscTab:CreateToggle({ Name = "FPS Booster", CurrentValue = true, Callback = function(v) _G.Misc.FPSBoost = v end })
+local InfoSection = LoginTab:NewSection("Info")
+InfoSection:NewLabel("Black Universe V4 - Flick Edition")
+InfoSection:NewLabel("Kavo UI (Anti Gagal Load)")
+InfoSection:NewLabel("Dedicated to louiss 👑")
 
-MiscTab:CreateSection("Credits")
-MiscTab:CreateLabel("BLACK UNIVERSE V3.2 - FLICK")
-MiscTab:CreateLabel("Single Window Fix")
-MiscTab:CreateLabel("Dedicated to louiss 👑")
-
-Rayfield:Notify({ Title = "BLACK UNIVERSE", Content = "Enter your license key to unlock!", Duration = 5 })
+Library:Notify("🔐 BLACK UNIVERSE", "Masukkan license key!", 5)
