@@ -3,39 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLACK HUB ADMIN 👑</title>
+    <title>BLACK HUB ADMIN 👑 - FIXED</title>
     <style>
-        body { background: #0a0a0a; color: #ff0000; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: #1a1a1a; border: 2px solid #ff0000; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 0 15px #ff0000; }
-        input, button, select { width: 100%; padding: 10px; margin-top: 10px; background: #000; border: 1px solid #ff0000; color: #fff; border-radius: 5px; }
-        button { background: #ff0000; color: #000; font-weight: bold; cursor: pointer; }
-        button:hover { background: #fff; color: #ff0000; }
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: #1a1a1a; border: 2px solid #00ff00; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 0 15px #00ff00; }
+        input, button, select { width: 100%; padding: 10px; margin-top: 10px; background: #000; border: 1px solid #00ff00; color: #fff; border-radius: 5px; }
+        button { background: #00ff00; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #fff; color: #00ff00; }
         .key-list { margin-top: 20px; width: 100%; max-width: 400px; }
-        .key-item { background: #222; padding: 10px; border-bottom: 1px solid #444; font-size: 12px; }
+        .key-item { background: #222; padding: 10px; border-bottom: 1px solid #444; font-size: 12px; margin-bottom: 5px; border-radius: 5px; }
+        .expired { color: #ff0000; text-decoration: line-through; }
+        .active { color: #00ff00; }
+        .delete-btn { background: #ff0000; color: #fff; border: none; padding: 5px 10px; margin-top: 5px; cursor: pointer; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-    <h1>👑 BLACK HUB ADMIN 👑</h1>
+    <h1>👑 BLACK HUB ADMIN V2 👑</h1>
 
     <div class="card">
-        <h3>CREATE NEW KEY 👿</h3>
-        <input type="text" id="keyName" placeholder="Key Name (e.g. ACEL-1234)">
+        <h3>🔑 CREATE NEW KEY</h3>
+        <input type="text" id="keyName" placeholder="Key Name (e.g. LOUISS-1234)">
         <input type="number" id="duration" placeholder="Duration Value">
         <select id="timeUnit">
             <option value="hours">Hours</option>
             <option value="days">Days</option>
+            <option value="months">Months</option>
         </select>
-        <button onclick="generateKey()">GENERATE & SAVE 💀</button>
+        <button onclick="generateKey()">💀 GENERATE & SAVE</button>
+        <p style="font-size: 10px; margin-top: 10px; color: #888;">Format Expiry: YYYY-MM-DD (String)</p>
     </div>
 
     <div class="key-list" id="keyList">
-        <h3>ACTIVE KEYS ☠️</h3>
-        </div>
+        <h3>📋 ACTIVE KEYS</h3>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI",
@@ -49,39 +54,97 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Format tanggal ke YYYY-MM-DD (STRING, bukan timestamp!)
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         window.generateKey = async function() {
-            const name = document.getElementById('keyName').value;
+            const name = document.getElementById('keyName').value.trim();
             const val = document.getElementById('duration').value;
             const unit = document.getElementById('timeUnit').value;
 
-            if(!name || !val) return alert("Isi yang bener, Cel! 😈");
+            if(!name || !val) {
+                alert("⚠️ Isi Key Name dan Duration yang bener, Bangs*t!");
+                return;
+            }
 
             const expiryDate = new Date();
             if(unit === 'hours') expiryDate.setHours(expiryDate.getHours() + parseInt(val));
-            else expiryDate.setDate(expiryDate.getDate() + parseInt(val));
+            else if(unit === 'days') expiryDate.setDate(expiryDate.getDate() + parseInt(val));
+            else if(unit === 'months') expiryDate.setMonth(expiryDate.getMonth() + parseInt(val));
+
+            // SIMPAN SEBAGAI STRING YYYY-MM-DD (BUKAN TIMESTAMP!)
+            const expiryString = formatDate(expiryDate);
 
             try {
                 await setDoc(doc(db, "Keys", name), {
                     key: name,
-                    expiry: expiryDate.getTime(),
-                    status: "Active"
+                    expiry: expiryString,        // <-- STRING, bukan number!
+                    status: "active",
+                    createdAt: formatDate(new Date())
                 });
-                alert("KEY BERHASIL DISIMPAN! 💀🔥");
+                alert(`✅ KEY BERHASIL DISIMPAN!\nKey: ${name}\nExpiry: ${expiryString}`);
+                document.getElementById('keyName').value = '';
+                document.getElementById('duration').value = '';
             } catch (e) {
+                alert("❌ GAGAL SIMPAN: " + e.message);
                 console.error(e);
             }
         }
 
-        // Realtime listener to show keys
+        window.deleteKey = async function(keyName) {
+            if(!confirm(`Yakin hapus key: ${keyName}?`)) return;
+            try {
+                await deleteDoc(doc(db, "Keys", keyName));
+                alert(`🗑️ Key ${keyName} dihapus!`);
+            } catch (e) {
+                alert("❌ GAGAL HAPUS: " + e.message);
+            }
+        }
+
+        // Realtime listener
         onSnapshot(collection(db, "Keys"), (snapshot) => {
             const list = document.getElementById('keyList');
-            list.innerHTML = "<h3>ACTIVE KEYS ☠️</h3>";
+            list.innerHTML = "<h3>📋 ACTIVE KEYS</h3>";
+            
+            if(snapshot.empty) {
+                list.innerHTML += "<p style='color: #888;'>Belum ada key, Bos!</p>";
+                return;
+            }
+
+            const today = formatDate(new Date());
+            
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                const exp = new Date(data.expiry).toLocaleString();
-                list.innerHTML += `<div class="key-item"><b>${data.key}</b><br>Exp: ${exp}</div>`;
+                const exp = data.expiry || "NO EXPIRY";
+                const isExpired = exp < today;
+                
+                const div = document.createElement('div');
+                div.className = 'key-item';
+                div.innerHTML = `
+                    <b style="color: ${isExpired ? '#ff0000' : '#00ff00'}">🔑 ${data.key}</b><br>
+                    📅 Expiry: ${exp} ${isExpired ? '<span style="color:#ff0000;">(EXPIRED)</span>' : '<span style="color:#00ff00;">(ACTIVE)</span>'}<br>
+                    📌 Status: ${data.status || 'active'}<br>
+                    🕒 Created: ${data.createdAt || 'N/A'}<br>
+                    <button class="delete-btn" onclick="window.deleteKey('${data.key}')">🗑️ DELETE</button>
+                `;
+                list.appendChild(div);
             });
         });
+
+        // Expose delete function to window
+        window.deleteKey = async function(keyName) {
+            if(!confirm(`⚠️ Yakin hapus key: ${keyName}?`)) return;
+            try {
+                await deleteDoc(doc(db, "Keys", keyName));
+            } catch (e) {
+                alert("❌ GAGAL HAPUS: " + e.message);
+            }
+        };
     </script>
 </body>
 </html>
