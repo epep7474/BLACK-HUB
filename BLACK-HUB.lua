@@ -1,6 +1,6 @@
--- [[ BLACK UNIVERSE V3.1 - FLICK EDITION (FULL FIXED) ]] --
+-- [[ BLACK UNIVERSE V3.2 - FLICK EDITION (SINGLE WINDOW FIX) ]] --
 -- Firebase: key-black-hub | Format Expiry: YYYY-MM-DD
--- Bug Fix: Single UI + Expiry String Check | Dedicated to louiss
+-- Fix: Login & Menu dalam SATU WINDOW (Anti Gagal Load)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -33,9 +33,6 @@ _G.ESP = {
 }
 _G.Misc = { AntiAFK = true, FPSBoost = true }
 
--- UI State
-local IsUILoaded = false
-
 -- ========== FOV CIRCLE ==========
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Thickness = 1.5
@@ -58,12 +55,10 @@ local function checkKey(key)
         local data = HttpService:JSONDecode(result)
         local fields = data.fields
         
-        -- Baca expiry sebagai STRING (YYYY-MM-DD)
         if fields and fields.expiry and fields.expiry.stringValue then
             local expiryDate = fields.expiry.stringValue
             local currentDate = os.date("%Y-%m-%d")
             
-            -- Bandingkan string
             if currentDate <= expiryDate then
                 return true, expiryDate
             else
@@ -256,78 +251,25 @@ if _G.Misc.FPSBoost then
     workspace.Terrain.WaterWaveSize = 0
 end
 
--- ========== UI CREATION (SINGLE INSTANCE) ==========
-local function CreateMainUI()
-    if IsUILoaded then return end
-    IsUILoaded = true
-    
-    local Window = Rayfield:CreateWindow({
-        Name = "🌌 BLACK UNIVERSE V3.1 - FLICK 🌌",
-        LoadingTitle = "INJECTING DARK MATTER...",
-        LoadingSubtitle = "louiss Private Access",
-        ConfigurationSaving = { Enabled = false }
-    })
-    
-    local CombatTab = Window:CreateTab("🎯 COMBAT", 4483362458)
-    local VisualsTab = Window:CreateTab("👁️ VISUALS", 4483362458)
-    local MiscTab = Window:CreateTab("⚙️ MISC", 4483362458)
-    
-    CombatTab:CreateSection("Aimbot Settings")
-    CombatTab:CreateToggle({ Name = "Enable Aimbot", Callback = function(v) _G.Aimbot.Enabled = v end })
-    CombatTab:CreateToggle({ Name = "Silent Aimbot", CurrentValue = true, Callback = function(v) _G.Aimbot.Silent = v end })
-    CombatTab:CreateToggle({ Name = "Trigger Bot", Callback = function(v) _G.Aimbot.TriggerBot = v end })
-    CombatTab:CreateSlider({ Name = "Trigger Delay", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.05, Callback = function(v) _G.Aimbot.TriggerDelay = v end })
-    CombatTab:CreateToggle({ Name = "Show FOV Circle", Callback = function(v) _G.Aimbot.ShowFOV = v end })
-    CombatTab:CreateSlider({ Name = "FOV Radius", Range = {50,500}, Increment = 10, CurrentValue = 200, Callback = function(v) _G.Aimbot.FOV = v end })
-    CombatTab:CreateSlider({ Name = "Smoothing", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.03, Callback = function(v) _G.Aimbot.Smoothing = v end })
-    CombatTab:CreateDropdown({ Name = "Aim Part", Options = {"Head","Torso","HumanoidRootPart"}, CurrentOption = "Head", Callback = function(o) _G.Aimbot.AimPart = o end })
-    
-    VisualsTab:CreateSection("ESP Settings")
-    VisualsTab:CreateToggle({ Name = "Enable ESP", Callback = toggleESP })
-    VisualsTab:CreateToggle({ Name = "Box ESP", CurrentValue = true, Callback = function(v) _G.ESP.Box = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    VisualsTab:CreateToggle({ Name = "Name ESP", CurrentValue = true, Callback = function(v) _G.ESP.Name = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    VisualsTab:CreateToggle({ Name = "Health Bar", CurrentValue = true, Callback = function(v) _G.ESP.Health = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    VisualsTab:CreateToggle({ Name = "Tracers", CurrentValue = true, Callback = function(v) _G.ESP.Tracer = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    VisualsTab:CreateToggle({ Name = "Distance", CurrentValue = true, Callback = function(v) _G.ESP.Distance = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    VisualsTab:CreateColorPicker({ Name = "ESP Color", Color = Color3.fromRGB(255,0,0), Callback = function(c) _G.ESP.Color = c; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
-    
-    MiscTab:CreateSection("Server")
-    MiscTab:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
-    MiscTab:CreateButton({ Name = "Server Hop", Callback = function()
-        local req = syn and syn.request or http_request or request
-        if req then
-            local url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?limit=100"
-            local data = req({Url = url}); local body = HttpService:JSONDecode(data.Body)
-            if body and body.data then
-                local servers = {}
-                for _, s in ipairs(body.data) do
-                    if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end
-                end
-                if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)], LocalPlayer) end
-            end
-        end
-    end })
-    
-    MiscTab:CreateSection("Utility")
-    MiscTab:CreateToggle({ Name = "Anti-AFK", CurrentValue = true, Callback = function(v) _G.Misc.AntiAFK = v end })
-    MiscTab:CreateToggle({ Name = "FPS Booster", CurrentValue = true, Callback = function(v) _G.Misc.FPSBoost = v end })
-    
-    MiscTab:CreateSection("Credits")
-    MiscTab:CreateLabel("BLACK UNIVERSE V3.1 - FLICK")
-    MiscTab:CreateLabel("Fixed by Black Universe AI")
-    MiscTab:CreateLabel("Dedicated to louiss 👑")
-end
-
--- ========== LOGIN UI ==========
-local LoginWindow = Rayfield:CreateWindow({
-    Name = "🔐 BLACK UNIVERSE AUTH",
-    LoadingTitle = "AUTHENTICATING...",
-    LoadingSubtitle = "louiss Key System",
+-- ========== UI CREATION (SATU WINDOW, DUA TAB) ==========
+local Window = Rayfield:CreateWindow({
+    Name = "🌌 BLACK UNIVERSE V3.2 - FLICK 🌌",
+    LoadingTitle = "INJECTING DARK MATTER...",
+    LoadingSubtitle = "louiss Private Access",
     ConfigurationSaving = { Enabled = false }
 })
 
-local LoginTab = LoginWindow:CreateTab("LOGIN", 4483362458)
+local LoginTab = Window:CreateTab("🔐 LOGIN", 4483362458)
+local CombatTab = Window:CreateTab("🎯 COMBAT", 4483362458)
+local VisualsTab = Window:CreateTab("👁️ VISUALS", 4483362458)
+local MiscTab = Window:CreateTab("⚙️ MISC", 4483362458)
 
+-- Default: sembunyikan tab menu sampai login sukses
+CombatTab:SetVisible(false)
+VisualsTab:SetVisible(false)
+MiscTab:SetVisible(false)
+
+-- ===== LOGIN TAB =====
 LoginTab:CreateSection("Enter License Key")
 LoginTab:CreateInput({
     Name = "License Key",
@@ -342,8 +284,12 @@ LoginTab:CreateButton({
         if isValid then
             _G.Auth.IsAuth = true
             Rayfield:Notify({ Title = "ACCESS GRANTED", Content = "Key valid until: " .. msg, Duration = 5 })
-            LoginWindow:Destroy()
-            CreateMainUI()
+            
+            -- Tampilkan tab menu, sembunyikan tab login
+            LoginTab:SetVisible(false)
+            CombatTab:SetVisible(true)
+            VisualsTab:SetVisible(true)
+            MiscTab:SetVisible(true)
         else
             Rayfield:Notify({ Title = "ACCESS DENIED", Content = msg, Duration = 5 })
         end
@@ -351,7 +297,55 @@ LoginTab:CreateButton({
 })
 
 LoginTab:CreateSection("Info")
-LoginTab:CreateLabel("Black Universe V3.1 - Flick Edition")
-LoginTab:CreateLabel("Fixed UI & Expiry System")
+LoginTab:CreateLabel("Black Universe V3.2 - Flick Edition")
+LoginTab:CreateLabel("Single Window Fix")
 
-Rayfield:Notify({ Title = "BLACK UNIVERSE", Content = "Enter your license key!", Duration = 5 })
+-- ===== COMBAT TAB =====
+CombatTab:CreateSection("Aimbot Settings")
+CombatTab:CreateToggle({ Name = "Enable Aimbot", Callback = function(v) _G.Aimbot.Enabled = v end })
+CombatTab:CreateToggle({ Name = "Silent Aimbot", CurrentValue = true, Callback = function(v) _G.Aimbot.Silent = v end })
+CombatTab:CreateToggle({ Name = "Trigger Bot", Callback = function(v) _G.Aimbot.TriggerBot = v end })
+CombatTab:CreateSlider({ Name = "Trigger Delay", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.05, Callback = function(v) _G.Aimbot.TriggerDelay = v end })
+CombatTab:CreateToggle({ Name = "Show FOV Circle", Callback = function(v) _G.Aimbot.ShowFOV = v end })
+CombatTab:CreateSlider({ Name = "FOV Radius", Range = {50,500}, Increment = 10, CurrentValue = 200, Callback = function(v) _G.Aimbot.FOV = v end })
+CombatTab:CreateSlider({ Name = "Smoothing", Range = {0.01,0.3}, Increment = 0.01, CurrentValue = 0.03, Callback = function(v) _G.Aimbot.Smoothing = v end })
+CombatTab:CreateDropdown({ Name = "Aim Part", Options = {"Head","Torso","HumanoidRootPart"}, CurrentOption = "Head", Callback = function(o) _G.Aimbot.AimPart = o end })
+
+-- ===== VISUALS TAB =====
+VisualsTab:CreateSection("ESP Settings")
+VisualsTab:CreateToggle({ Name = "Enable ESP", Callback = toggleESP })
+VisualsTab:CreateToggle({ Name = "Box ESP", CurrentValue = true, Callback = function(v) _G.ESP.Box = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+VisualsTab:CreateToggle({ Name = "Name ESP", CurrentValue = true, Callback = function(v) _G.ESP.Name = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+VisualsTab:CreateToggle({ Name = "Health Bar", CurrentValue = true, Callback = function(v) _G.ESP.Health = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+VisualsTab:CreateToggle({ Name = "Tracers", CurrentValue = true, Callback = function(v) _G.ESP.Tracer = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+VisualsTab:CreateToggle({ Name = "Distance", CurrentValue = true, Callback = function(v) _G.ESP.Distance = v; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+VisualsTab:CreateColorPicker({ Name = "ESP Color", Color = Color3.fromRGB(255,0,0), Callback = function(c) _G.ESP.Color = c; if _G.ESP.Enabled then toggleESP(false); toggleESP(true) end end })
+
+-- ===== MISC TAB =====
+MiscTab:CreateSection("Server")
+MiscTab:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
+MiscTab:CreateButton({ Name = "Server Hop", Callback = function()
+    local req = syn and syn.request or http_request or request
+    if req then
+        local url = "https://games.roblox.com/v1/games/https:/136801880565837/servers/Public?limit=100"
+        local data = req({Url = url}); local body = HttpService:JSONDecode(data.Body)
+        if body and body.data then
+            local servers = {}
+            for _, s in ipairs(body.data) do
+                if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end
+            end
+            if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)], LocalPlayer) end
+        end
+    end
+end })
+
+MiscTab:CreateSection("Utility")
+MiscTab:CreateToggle({ Name = "Anti-AFK", CurrentValue = true, Callback = function(v) _G.Misc.AntiAFK = v end })
+MiscTab:CreateToggle({ Name = "FPS Booster", CurrentValue = true, Callback = function(v) _G.Misc.FPSBoost = v end })
+
+MiscTab:CreateSection("Credits")
+MiscTab:CreateLabel("BLACK UNIVERSE V3.2 - FLICK")
+MiscTab:CreateLabel("Single Window Fix")
+MiscTab:CreateLabel("Dedicated to louiss 👑")
+
+Rayfield:Notify({ Title = "BLACK UNIVERSE", Content = "Enter your license key to unlock!", Duration = 5 })
